@@ -1,6 +1,7 @@
 # Architecture
 
 
+# ------------------------------ DAY 1 ------------------------------
 
 
 ## First Overall Layout Draft (d1.0) - a fixed three panel workspace

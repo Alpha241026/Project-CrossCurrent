@@ -1,6 +1,8 @@
 # Decision Log
 
 
+# ------------------------------ DAY 1 ------------------------------
+
 
 - ## D001 : Pulse Version 1 will use a fixed three-panel workspace.
 
