@@ -152,3 +152,32 @@ If not, postpone.
 _______________________________________________________________________________________________________
 
 - ## D010 : Layered Architecture
+
+backend/
+
+models/
+    Project
+
+↓
+
+repositories/
+    ProjectRepository
+
+↓
+
+services/
+    ProjectService
+
+↓
+
+controllers/
+    ProjectController
+
+↓
+
+routes/
+    project_routes
+
+↓
+
+app.py
