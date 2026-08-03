@@ -1,7 +1,7 @@
 # Decision Log
 
 
-# ------------------------------ DAY 1 ------------------------------
+# ------------------------------ DAY 1/2 ------------------------------
 
 
 - ## D001 : Pulse Version 1 will use a fixed three-panel workspace.
@@ -122,7 +122,7 @@ Why?
 
 ________________________________________________________________________________________________________
 
-- ## D008 : History is NOT a first-class entity.
+- ## D007 : History is NOT a first-class entity.
 
 Reason:
 History is simply a view over Executions.
@@ -135,7 +135,7 @@ It duplicates data and adds unnecessary complexity.
 
 _______________________________________________________________________________________________________
 
-- ## D009 : Every new feature must pass the Version 1 Filter.
+- ## D008 : Every new feature must pass the Version 1 Filter.
 
 Questions:
 
@@ -151,7 +151,7 @@ If not, postpone.
 
 _______________________________________________________________________________________________________
 
-- ## D010 : Layered Architecture
+- ## D09 : Layered Architecture
 
 backend/
 
@@ -181,3 +181,45 @@ routes/
 ↓
 
 app.py
+
+
+___________________________________________________________________________________________________
+
+
+# ------------------------------ DAY 3 / 4 / 5 ------------------------------
+
+
+- ## D010 : Project data will initially be stored in an in-memory repository.
+
+Reason:
+Allows validation of the layered architecture before introducing PostgreSQL.
+
+Future:
+Replace the repository storage with a real database without changing the frontend or higher backend layers.
+
+______________________________________________________________________________________________________
+
+
+- ## D011 : The frontend will always refresh its state from the backend after successful operations.
+
+Reason:
+The backend remains the single source of truth.
+
+Alternative:
+Manually append newly created projects to the sidebar.
+
+Rejected because:
+It risks frontend and backend state becoming inconsistent.
+
+______________________________________________________________________________________________________
+
+
+- ## D012 : Slice 1 will use Vanilla JavaScript Fetch API for backend communication.
+
+Reason:
+Keeps the frontend lightweight while reinforcing HTTP fundamentals before introducing any frontend framework.
+
+Future:
+The communication layer can later be migrated to React or another framework without changing the backend API.
+
+______________________________________________________________________________________________________

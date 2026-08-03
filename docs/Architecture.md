@@ -354,3 +354,52 @@ ________________________________________________________________________________
 5. Polish & Deployment
 
 ___________________________________________________________________________________________________
+
+
+___________________________________________________________________________________________________
+
+
+# Current Implemented Flow (Slice 1 - d1.1.2)
+
+
+Browser
+
+↓
+
+JavaScript (Fetch API)
+
+↓
+
+Flask Routes
+
+↓
+
+Controllers
+
+↓
+
+Services
+
+↓
+
+Repositories
+
+↓
+
+Models
+
+↓
+
+In-memory Storage
+
+↓
+
+HTTP Response
+
+↓
+
+JavaScript
+
+↓
+
+DOM Rendering
