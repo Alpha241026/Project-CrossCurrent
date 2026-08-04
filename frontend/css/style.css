@@ -1,11 +1,13 @@
 body {
-    display:flex;
-    height: 100vh;
+    display: flex;
     margin: 0;
+    height: 100vh;
 }
 
+/* ================= Sidebar ================= */
+
 .sidebar {
-    width: 25%;
+    width: 22%;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -34,12 +36,115 @@ body {
     box-sizing: border-box;
 }
 
+/* ================= Main ================= */
+
 .main {
+    width: 78%;
     padding: 30px;
-    width: 75%;
+    box-sizing: border-box;
+    background: white;
+}
+
+/* ================= Workspace ================= */
+
+.workspace {
+    margin-top:20px;
+    display: flex;
+    width: 100%;
+    gap: 20px;
+}
+
+/* ================= Request Builder ================= */
+
+.request-builder {
+    flex: 2;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: white;
+}
+
+.request-top {
+    display: flex;
+}
+
+.method-section {
+    flex: 1;
+}
+
+.url-section {
+    flex: 5;
+}
+
+.url-section input{
+    width:100%;
+}
+
+.send-section {
+    flex: 1;
+}
+
+#send-btn{
+    width:100%;
+    height:40px;
+}
+
+textarea{
+    min-height:140px;
+    resize:vertical;
+}
+
+.params-section,
+.headers-section,
+.body-section {
+    min-height: 120px;
+}
+
+.request-builder input,
+.request-builder select,
+.request-builder textarea{
+    width:100%;
+    box-sizing:border-box;
+}
+
+
+/* ================= Response Viewer ================= */
+
+.response-viewer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.status-section {
+    min-height: 60px;
+}
+
+.json-section {
+    flex: 1;
+    min-height: 300px;
+}
+
+/* ================= Common Borders ================= */
+
+.request-builder,
+.response-viewer,
+.request-top,
+.method-section,
+.url-section,
+.send-section,
+.params-section,
+.headers-section,
+.body-section,
+.status-section,
+.json-section {
+    border: 1px solid #888;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.params-section,
+.headers-section,
+.body-section,
+.status-section,
+.json-section{
+    padding:15px;
 }

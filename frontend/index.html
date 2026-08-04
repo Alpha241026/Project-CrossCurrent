@@ -27,8 +27,69 @@
         </div>
 
         <div class="main">
-            <h2>Welcome to Chimera !</h2>
-            <p>Select or create a project...</p>
+            <div class="workspace">
+                <div class="request-builder">
+                    <div class="request-top">
+                        <div class="method-section">
+                            <label>Method</label>
+                            <select id="method">
+                                <option>GET</option>
+                                <option>POST</option>
+                                <option>PUT</option>
+                                <option>PATCH</option>
+                                <option>DELETE</option>
+                            </select>
+                        </div>
+
+                        <div class="url-section">
+                            <label>URL</label>
+                            <input
+                            type="text"
+                            id="url"
+                            placeholder="https://api.example.com/users">
+                        </div>
+
+                        <div class="send-section">
+                            <button id="send-btn">
+                                Send
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="params-section">
+                        <h3>Params</h3>
+                        <p>No query parameters yet.</p>
+                    </div>
+
+                    <div class="headers-section">
+                        <h3>Headers</h3>
+                        <p>No headers yet.</p>
+                    </div>
+
+                    <div class="body-section">
+                        <h3>Body</h3>
+                        <textarea
+                            id="request-body"
+                            placeholder='{"name":"John"}'>
+                        </textarea>
+                    </div>
+                </div>
+
+                <div class="response-viewer">
+                    <div class="status-section">
+                        <h3>Status</h3>
+                        <p>---</p>
+                    </div>
+
+                    <div class="json-section">
+                        <h3>Response</h3>
+                        <pre id="response-output">
+                        No response yet...
+                        </pre>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <script src="js/main.js"></script>
