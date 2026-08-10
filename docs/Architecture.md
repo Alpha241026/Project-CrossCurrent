@@ -356,8 +356,6 @@ ________________________________________________________________________________
 ___________________________________________________________________________________________________
 
 
-___________________________________________________________________________________________________
-
 
 # Current Implemented Flow (Slice 1 - d1.1.2)
 
@@ -403,3 +401,89 @@ JavaScript
 ↓
 
 DOM Rendering
+
+_______________________________________________________________________________________________________
+
+
+# Current Implemented Flow (Slice 2 - d1.1.3)
+
+Browser
+
+↓
+
+JavaScript (Fetch API)
+
+↓
+
+POST /execute
+
+↓
+
+Flask Route
+
+↓
+
+Controller
+
+↓
+
+Execution Service
+
+↓
+
+External HTTP API
+
+↓
+
+Execution Service
+
+↓
+
+Controller
+
+↓
+
+HTTP Response
+
+↓
+
+JavaScript
+
+↓
+
+Response Viewer
+
+_________________________________________________________________________________________________________
+
+
+## Slice 2 Execution Responsibility
+
+Frontend
+
+Collects request details and sends them to the backend.
+
+↓
+
+Route
+
+Maps `/execute` to the execution controller.
+
+↓
+
+Controller
+
+Extracts request data and coordinates execution.
+
+↓
+
+Service
+
+Performs the external HTTP request and returns the status and response body.
+
+↓
+
+Response Viewer
+
+Displays the execution result.
+
+__________________________________________________________________________________________________

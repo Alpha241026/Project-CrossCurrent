@@ -85,3 +85,47 @@ Common Bugs:
 - Dependency wiring confusion between `app.py`, routes, controller and service during initial setup.
 
 ________________________________________________________________________________________________
+
+
+# ------------------------------ DAY 6 / 7 ------------------------------
+
+# Slice 2
+
+## Topic
+
+Request Execution Pipeline (Flask + Vanilla JS)
+
+## Reason
+
+Build the first complete request execution flow by routing API requests through the Pulse backend instead of contacting external APIs directly from the frontend.
+
+## Status
+
+✅ Completed
+
+## Notes
+
+Covered:
+
+- Request Builder and Response Viewer frontend structure
+- Sending request details from the frontend to the Flask backend
+- Flask execution flow (Route → Controller → Service)
+- External HTTP requests using Python's `requests` library
+- GET and POST request execution
+- Returning standardized JSON responses containing status and body
+
+Key Learnings:
+
+- The frontend sends request instructions to the backend instead of directly contacting external APIs.
+- Routes handle URL mapping, controllers coordinate request and response flow, and services perform the actual HTTP execution.
+- The backend returns the response status and body to the frontend for display.
+- Request execution was tested independently with both GET and POST requests.
+
+Common Bugs:
+
+- Frontend initially contacted external APIs directly instead of routing requests through the backend.
+- Incorrect indentation caused GET requests to return `null`.
+- Confusion between Route, Controller and Service responsibilities during the initial backend implementation.
+- Request body needed to be parsed from JSON before being sent to the backend.
+
+____________________________________________________________________________________________________________

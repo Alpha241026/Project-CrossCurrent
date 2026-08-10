@@ -68,7 +68,7 @@ function sendRequest() {
         return;
     }
 
-    //build the fetch options
+    //build the original request configuration
     const options = {
         method
     };
@@ -82,28 +82,39 @@ function sendRequest() {
         options.body = body;
     }
 
-    //send the request and display the result
-    fetch(url, options)
-        .then((response) => {
+    //send the request details to the backend for execution
+    fetch("http://127.0.0.1:5000/execute", {
 
-            statusOutput.textContent =
-                `${response.status} ${response.statusText}`;
+        method: "POST",
 
-            return response.json();
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            method: method,
+            url: url,
+            body: method === "GET" ? null : JSON.parse(body)
         })
-        .then((data) => {
 
-            responseOutput.textContent =
-                JSON.stringify(data, null, 2);
+    })
+    .then((response) => { //read the backend response
 
-        })
-        .catch((error) => {
+        return response.json();
 
-            statusOutput.textContent = "Request Failed";
-            responseOutput.textContent = error.message;
+    })
+    .then((data) => { //update the status and response panels
 
-        });
+        statusOutput.textContent = data.status;
+        responseOutput.textContent = JSON.stringify(data.body, null, 2);
+
+    })
+    .catch((error) => { //display request errors
+
+        statusOutput.textContent = "Request Failed";
+        responseOutput.textContent = error.message;
+
+    });
 }
 
-//load existing projects when the page opens
 loadProjects();
