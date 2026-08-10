@@ -2,9 +2,6 @@ import requests
 
 #executes an HTTP request to target API
 def execute_request(method,url,body):
-    
-    print("SERVICE METHOD:", method)
-    print("SERVICE URL:", url)
 
     if method=="GET": #sending GET request
         response = requests.get(url)

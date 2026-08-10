@@ -9,5 +9,3 @@ class ProjectRepository: #stores Project objects in memory
         
     def get_projects(self) -> list[Project]: #method for returning list of existing projects
         return self.projects
-    
-repo = ProjectRepository() #creating object

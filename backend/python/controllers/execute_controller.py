@@ -11,10 +11,6 @@ def execute():
     url = data.get("url")
     body = data.get("body")
     
-    print("METHOD:", method)
-    print("URL:", url)
-    print("BODY:", body)
-    
     result = execute_request(method,url,body) #let the service execute the HTTP request
     
     return jsonify(result) #return the service result back to the frontend as JSON

@@ -4,11 +4,9 @@ from services.project_service import ProjectService
 from controllers.project_controller import ProjectController
 
 from routes.project_route import register_project_routes
-
-from routes.execute_route import execute_bp
 from routes.execute_route import register_execute_routes
 
-app = Flask(__name__)
+app = Flask(__name__) #create Flask application instance
 
 #build the dependency chain
 repo = ProjectRepository()

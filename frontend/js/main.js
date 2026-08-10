@@ -68,11 +68,6 @@ function sendRequest() {
         return;
     }
 
-    //build the original request configuration
-    const options = {
-        method
-    };
-
     //only attach a body for non-GET requests
     if (method !== "GET") {
         options.headers = {
@@ -117,4 +112,4 @@ function sendRequest() {
     });
 }
 
-loadProjects();
+loadProjects(); //populating sidebar from existing backend state when page opens
