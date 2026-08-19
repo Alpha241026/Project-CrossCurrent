@@ -18,5 +18,15 @@ def register_project_routes(app, controller: ProjectController):
     def get_projects():
         return controller.get_projects()
 
+    #forward PATCH /projects/{id} to the controller
+    @project_routes.patch("/projects/<int:id>")
+    def update_project(id):
+        return controller.update_project(id)
+
+    #forward DELETE /projects/{id} to the controller
+    @project_routes.delete("/projects/<int:id>")
+    def delete_project(id):
+        return controller.delete_project(id)
+
     #attach this blueprint to the Flask application
     app.register_blueprint(project_routes)
