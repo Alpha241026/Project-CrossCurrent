@@ -62,19 +62,22 @@ function sendRequest() {
     const url = urlInput.value;
     const body = bodyInput.value;
 
+    //parse the request body only when one is provided
+    let parsedBody = null;
+
+    if (body.trim() !== "") {
+        try {
+            parsedBody = JSON.parse(body);
+        } catch {
+            alert("Body must contain valid JSON!");
+            return;
+        }
+    }
+
     //prevent empty URLs
     if (url.trim() === "") {
         alert("URL can't be empty!");
         return;
-    }
-
-    //only attach a body for non-GET requests
-    if (method !== "GET") {
-        options.headers = {
-            "Content-Type": "application/json"
-        };
-
-        options.body = body;
     }
 
     //send the request details to the backend for execution
@@ -86,10 +89,11 @@ function sendRequest() {
             "Content-Type": "application/json"
         },
 
+        //send the selected HTTP method, URL and parsed body to Chimera for execution
         body: JSON.stringify({
             method: method,
             url: url,
-            body: method === "GET" ? null : JSON.parse(body)
+            body: method === "GET" ? null : parsedBody
         })
 
     })

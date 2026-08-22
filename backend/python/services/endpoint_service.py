@@ -23,7 +23,7 @@ class EndpointService:
             raise ValueError("URL cannot be empty")
 
         #allow only HTTP methods currently supported by Chimera
-        if method not in ["GET", "POST"]:
+        if method not in ["GET", "POST", "PATCH", "DELETE"]:
             raise ValueError("Unsupported HTTP method")
 
         #check whether the parent project exists
@@ -87,7 +87,7 @@ class EndpointService:
             raise ValueError("URL cannot be empty")
 
         #allow only HTTP methods currently supported by Chimera
-        if method not in ["GET", "POST"]:
+        if method not in ["GET", "POST", "PATCH", "DELETE"]:
             raise ValueError("Unsupported HTTP method")
 
         #find the existing endpoint
