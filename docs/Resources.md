@@ -35,3 +35,33 @@ JS-Gaps/
 Go-HTTP/
 ├── hello-server/
 └── json-api/
+
+
+# ------------------------------ SLICE 3 ------------------------------
+
+
+## JavaScript / Frontend
+
+- MDN data-* attributes / dataset
+- MDN addEventListener()
+- MDN Event.currentTarget
+
+Builder practice:
+
+JavaScript frontend work in frontend/js/main.js
+
+
+## Flask / Backend
+
+- Official Flask documentation — Request / JSON handling
+- Official Flask documentation — Routing / Blueprints
+- Python requests documentation — HTTP methods and JSON requests
+
+Builder practice:
+
+Chimera Slice 3 — layered Project / Endpoint CRUD implementation
+
+
+## API Client References
+
+- Hoppscotch — REST client / saved request and collection interaction reference

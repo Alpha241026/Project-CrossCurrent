@@ -129,3 +129,50 @@ Common Bugs:
 - Request body needed to be parsed from JSON before being sent to the backend.
 
 ____________________________________________________________________________________________________________
+
+# ------------------------------ SLICE 3 ------------------------------
+
+## Topic
+
+Project & Endpoint Resource Management + Request Workflow
+
+## Reason
+
+Extend Chimera from basic project creation and request execution into a usable project-based API workspace by introducing reusable Endpoints, full resource CRUD, project selection and request-builder integration.
+
+## Status
+
+✅ Completed
+
+## Notes
+
+Covered:
+- Endpoint domain modeling and Project → Endpoint ownership
+- Full Project and Endpoint CRUD using Flask layered architecture
+- In-memory repositories and dependency injection across services
+- Project deletion cascading to child Endpoints
+- Frontend project selection and nested Endpoint rendering
+- Endpoint selection and loading saved configuration into the Request Builder
+- Saving, updating and deleting Endpoints from the frontend
+- Request execution expanded to GET, POST, PATCH and DELETE
+- Handling empty/non-JSON HTTP responses
+- Basic frontend validation and JSON body parsing
+
+Key Learnings:
+- Repositories handle storage operations while Services handle validation and cross-resource business logic.
+- selectedProjectID and the complete selectedEndpoint object provide the frontend state needed for project-scoped operations and Request Builder population.
+- Saved resource state should be refreshed from the backend after successful mutations.
+- data-* attributes can connect dynamically rendered DOM elements to backend resource IDs.
+- Empty request bodies should be represented as null rather than forcing JSON parsing.
+- HTTP method support and route design must remain consistent across frontend, controllers, services and repositories.
+
+Common Bugs:
+- Repository update methods required both the resource ID and replacement object.
+- Endpoint update/delete frontend routes initially did not match the backend's Endpoint-scoped routes.
+- response.json() failed when backend errors returned HTML instead of JSON.
+- Empty DELETE bodies caused JSON.parse("") failures.
+- Endpoint lists initially rendered as a separate global section instead of nested under their Project.
+- Request Builder fields were initially assigned in the wrong direction when loading a saved Endpoint.
+- Frontend options code remained after the execution request configuration had already been rebuilt, causing an undefined-variable error for non-GET requests.
+
+__________________________________________________________________________________________________________________________

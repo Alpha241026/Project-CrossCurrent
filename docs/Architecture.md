@@ -487,3 +487,351 @@ Response Viewer
 Displays the execution result.
 
 __________________________________________________________________________________________________
+
+
+# ------------------------------ SLICE 3 ------------------------------
+
+## Slice 3 — Resource Management + Request Execution Integration
+
+Slice 3 connects the project/endpoint resource layer with the request execution workflow.
+
+The implemented responsibility is now:
+
+Project
+   ↓
+Endpoint
+   ↓
+Request Configuration
+   ↓
+Request Execution
+   ↓
+Status + Response
+
+
+Slice 3 covers:
+
+Project CRUD
+Endpoint CRUD
+Project → Endpoint ownership
+Frontend project/endpoint selection
+Request-builder population from saved endpoints
+Request execution
+Response display
+Basic frontend validation
+
+_________________________________________________
+
+## Slice 3 Backend Layer Architecture
+
+The backend now consistently follows the layered architecture:
+
+HTTP Request
+     ↓
+Route
+     ↓
+Controller
+     ↓
+Service
+     ↓
+Repository
+     ↓
+In-memory Storage
+
+The response travels back through the same layers:
+
+In-memory Storage
+     ↓
+Repository
+     ↓
+Service
+     ↓
+Controller
+     ↓
+HTTP Response
+     ↓
+Frontend
+
+
+## Route
+
+Defines the HTTP endpoint and forwards the request to the appropriate controller.
+
+## Controller
+
+Handles HTTP-specific concerns:
+
+reading JSON request bodies
+extracting route parameters
+calling the service layer
+converting domain objects to JSON
+returning HTTP responses/status codes
+
+## Service
+
+Contains business logic and validation.
+
+## Repository
+
+Handles access to the current in-memory storage.
+
+## Model
+
+Represents the domain object.
+
+____________________________________________________
+
+## Slice 3 Project CRUD
+
+Projects now have complete CRUD support:
+
+POST   /projects
+GET    /projects
+PATCH  /projects/{id}
+DELETE /projects/{id}
+
+The flow is :
+
+Frontend
+   ↓
+Project Route
+   ↓
+ProjectController
+   ↓
+ProjectService
+   ↓
+ProjectRepository
+   ↓
+In-memory Project List
+
+ProjectService receives both the ProjectRepository and EndpointRepository.
+
+This allows project deletion to enforce the parent-child relationship:
+
+Delete Project
+      ↓
+Validate Project exists
+      ↓
+Delete all Endpoints belonging to Project
+      ↓
+Delete Project
+
+___________________________________________________
+
+## Slice 3 Endpoint CRUD
+
+Endpoints now have complete resource management:
+
+POST   /projects/{project_id}/endpoints
+GET    /projects/{project_id}/endpoints
+GET    /endpoints/{endpoint_id}
+PATCH  /endpoints/{endpoint_id}
+DELETE /endpoints/{endpoint_id}
+
+The endpoint belongs to a project through: project_id
+
+Endpoint creation therefore verifies that its parent project exists.
+
+The currently implemented endpoint structure is:
+
+Endpoint
+├── id
+├── project_id
+├── name
+├── method
+├── url
+└── body
+
+Currently supported HTTP methods are:
+
+GET
+POST
+PATCH
+DELETE
+
+The service layer validates endpoint name, URL, HTTP method and parent-project existence where applicable.
+
+_______________________________________________________________
+
+## Slice 3 Repository Architecture
+
+The current repositories use in-memory Python lists:
+
+ProjectRepository
+    └── projects[]
+
+EndpointRepository
+    └── endpoints[]
+
+Repositories expose CRUD operations to the service layer while hiding the underlying storage implementation.
+
+This preserves the existing architecture for the eventual transition to PostgreSQL.
+
+EndpointRepository additionally supports filtering endpoints by their parent project and deleting all endpoints belonging to a project.
+
+________________________________________________________________
+
+## Slice 3 Frontend Resource Hierarchy
+
+The frontend now mirrors the backend project → endpoint relationship.
+
+Instead of a separate global endpoint section:
+
+Projects
+
+Project A
+
+Endpoints
+   └── Endpoint A
+
+the endpoint list is dynamically nested underneath its project:
+
+Projects
+
+Project A
+   ├── Endpoint A
+   └── Endpoint B
+
+Project B
+   └── Endpoint C
+
+When a project is selected:
+
+Its backend ID is stored in selectedProjectID.
+Its endpoints are fetched from the backend.
+Previously displayed endpoint lists are removed.
+A new endpoint list is created.
+The endpoint list is attached beneath the selected project.
+
+______________________________________________________________
+
+## Slice 3 Frontend State
+
+The frontend maintains:
+
+let selectedProjectID = null;
+let selectedEndpoint = null;
+
+selectedProjectID: 
+Stores the ID of the currently selected project and is used for project-scoped endpoint operations.
+
+selectedEndpoint: 
+Stores the complete endpoint object currently selected.
+
+Keeping the complete endpoint object avoids maintaining separate state variables for every endpoint property.
+
+______________________________________________________________
+
+## Slice 3 Endpoint → Request Builder Flow
+
+Selecting an endpoint follows:
+
+Endpoint selected
+      ↓
+selectedEndpoint = endpoint object
+      ↓
+loadEndpointIntoBuilder()
+      ↓
+Method
+URL
+Body
+
+The endpoint body receives special handling:
+
+endpoint.body == null
+        ↓
+empty textarea
+
+endpoint.body exists
+        ↓
+JSON.stringify(endpoint.body, null, 2)
+        ↓
+formatted JSON in textarea
+
+This keeps the backend's null representation for an absent body separate from the frontend's empty editing field.
+
+___________________________________________________________
+
+## Slice 3 Endpoint Creation Flow
+
+Saving an endpoint from the frontend follows:
+
+Select Project
+      ↓
+Enter Endpoint Name
+      ↓
+Configure Method / URL / Body
+      ↓
+Validate
+      ↓
+Parse JSON Body
+      ↓
+POST /projects/{project_id}/endpoints
+      ↓
+EndpointService
+      ↓
+EndpointRepository
+      ↓
+Refresh selected project's endpoint list
+
+An endpoint cannot be saved without:
+
+a selected project
+an endpoint name
+a URL
+valid JSON when a body is supplied
+
+____________________________________________________________
+
+## Slice 3 Request Execution Integration
+
+Saving an endpoint and executing a request remain separate operations.
+
+A saved endpoint can populate the request builder, after which the user can modify the configuration before executing it.
+
+Select Endpoint
+      ↓
+Load Endpoint Configuration
+      ↓
+Modify Request Configuration if required
+      ↓
+Send
+      ↓
+POST /execute
+      ↓
+Execution Controller
+      ↓
+Execution Service
+      ↓
+External HTTP API
+      ↓
+Status + Response Body
+      ↓
+Response Viewer
+
+The request builder therefore represents the current request configuration, while the saved endpoint represents the persisted resource configuration currently held by the backend.
+
+_____________________________________________________________
+
+## Slice 3 Project + Endpoint CRUD Scope
+
+The frontend/backend resource layer now supports:
+
+Projects
+├── Create
+├── Read/List
+├── Update
+└── Delete
+
+Endpoints
+├── Create
+├── Read/List
+├── Read by ID
+├── Update
+└── Delete
+
+Updating an endpoint preserves its existing project_id, preventing an ordinary endpoint update from accidentally changing its parent project.
+
+Deleting a project also deletes its child endpoints.
+
+_____________________________________________________________
+
