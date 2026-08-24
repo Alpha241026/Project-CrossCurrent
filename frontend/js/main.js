@@ -338,8 +338,8 @@ function saveEndpoint() {
     const isEditing = editingEndpointID !== null;
 
     const urlPath = isEditing
-        ? `http://127.0.0.1:5000/projects/${selectedProjectID}/endpoints/${editingEndpointID}`
-        : `http://127.0.0.1:5000/projects/${selectedProjectID}/endpoints`;
+    ? `http://127.0.0.1:5000/endpoints/${editingEndpointID}`
+    : `http://127.0.0.1:5000/projects/${selectedProjectID}/endpoints`;
 
     const methodType = isEditing ? "PATCH" : "POST";
 
@@ -391,7 +391,7 @@ function deleteEndpoint(projectID, endpointID) {
         return;
     }
 
-    fetch(`http://127.0.0.1:5000/projects/${projectID}/endpoints/${endpointID}`, {
+    fetch(`http://127.0.0.1:5000/endpoints/${endpointID}`, {
         method: "DELETE"
     })
     .then((response) => {

@@ -2,7 +2,6 @@ from services.endpoint_service import EndpointService
 from flask import request,jsonify
 
 class EndpointController:
-
     #receive the EndpointService object (dependency injection)
     def __init__(self, service: EndpointService):
         self.service = service
@@ -16,7 +15,7 @@ class EndpointController:
         body = data.get("body") #extract the body from the request the safer way in case its None
         endpoint = self.service.create_endpoint(project_id,name,method,url,body) #ask service layer to create the endpoint
         return jsonify(endpoint.__dict__),201 #convert Endpoint object to JSON & return HTTP 201 (Created)
-        
+
     #handle GET /projects/{project_id}/endpoints requests
     def get_endpoints(self,project_id):
         endpoints = self.service.get_endpoints(project_id) #ask service layer for endpoints belonging to this project
@@ -29,7 +28,7 @@ class EndpointController:
     def get_endpoint_by_id(self,endpoint_id: int):
         endpoint = self.service.get_endpoint_by_id(endpoint_id) #ask service layer for this endpoint
         return jsonify(endpoint.__dict__), 200 #return single Endpoint object with HTTP 200 (OK)
-        
+
     #handle PATCH /projects/{id}/endpoints requests
     def update_endpoint(self,endpoint_id: int):
         data = request.get_json() #read JSON body sent by frontend
