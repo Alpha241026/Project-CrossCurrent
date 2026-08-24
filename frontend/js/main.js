@@ -5,13 +5,20 @@ const proList = document.querySelector("#project-list");
 const methodSelect = document.querySelector("#method");
 const urlInput = document.querySelector("#url");
 const bodyInput = document.querySelector("#request-body");
+const endpointNameInput = document.querySelector("#endpoint-name");
 
+const saveEndpointButton = document.querySelector("#save-endpoint-btn");
 const sendButton = document.querySelector("#send-btn");
 
 const statusOutput = document.querySelector("#status-output");
 const responseOutput = document.querySelector("#response-output");
 
+let selectedProjectID = null; //store ID of currently selected project, none project selected on initial page load
+let selectedEndpoint = null; //store the currently selected endpoint and its request configuration
+let editingEndpointID = null; //store the ID of the endpoint currently being edited
+
 proButton.addEventListener("click", createProject); //create a project when the button is clicked
+saveEndpointButton.addEventListener("click", saveEndpoint); //save the endpoint in the menu when the button is clicked
 sendButton.addEventListener("click", sendRequest);  //send the configured HTTP request
 
 //sends a new project to the backend
@@ -37,20 +44,380 @@ function createProject() {
 }
 
 //fetches and displays all projects
-function loadProjects() {
+function loadProjects(expandProjectID = null) {
     fetch("http://127.0.0.1:5000/projects", {
         method: "GET"
     }).then((response) => {
         return response.json();
     }).then((data) => {
 
-        proList.innerHTML = ""; //rebuild the sidebar from the latest backend data
+        proList.innerHTML = ""; //rebuild the sidebar from the latest backend project data
 
         for (const project of data) {
             const projectItem = document.createElement("li");
-            projectItem.textContent = project.name;
+
+            //attach the backend project ID to the project list item
+            projectItem.dataset.projectId = project.id;
+
+            //display the project name separately so action buttons can sit beside it
+            const projectName = document.createElement("span");
+            projectName.className = "project-name";
+            projectName.textContent = project.name;
+
+            //create project update button
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+
+            //create project delete button
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+
+            //handle project selection
+            projectItem.addEventListener("click", () => {
+
+                //store the selected project's ID for later endpoint operations
+                selectedProjectID = Number(projectItem.dataset.projectId);
+
+                //a new project selection means no endpoint is currently selected
+                selectedEndpoint = null;
+
+                loadEndpoints(selectedProjectID, projectItem);
+                console.log(selectedProjectID);
+            });
+
+            //handle project update without triggering project selection
+            editButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                updateProject(project.id, projectItem);
+            });
+
+            //handle project deletion without triggering project selection
+            deleteButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                deleteProject(project.id);
+            });
+
+            projectItem.appendChild(projectName);
+            projectItem.appendChild(editButton);
+            projectItem.appendChild(deleteButton);
+
             proList.appendChild(projectItem);
+
+            //restore the endpoint list after refreshing an updated project
+            if (expandProjectID === project.id) {
+                loadEndpoints(project.id, projectItem);
+            }
         }
+    });
+}
+
+//updates the name of an existing project
+function updateProject(projectID, projectItem) {
+
+    //find the currently displayed project name
+    const projectName = projectItem.querySelector(".project-name");
+
+    //prevent multiple edit inputs on the same project
+    if (projectItem.querySelector(".project-edit-input")) {
+        return;
+    }
+
+    //replace the displayed name with an editable input
+    const editInput = document.createElement("input");
+    editInput.className = "project-edit-input";
+    editInput.value = projectName.textContent;
+
+    //create a button to confirm the new name
+    const saveButton = document.createElement("button");
+    saveButton.textContent = "Save";
+
+    //replace the project name with the edit controls
+    projectName.replaceWith(editInput);
+    editInput.after(saveButton);
+
+    //save the updated project name
+    saveButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+
+        const name = editInput.value;
+
+        //prevent empty project names
+        if (name.trim() === "") {
+            alert("Project name can't be empty!");
+            return;
+        }
+
+        fetch(`http://127.0.0.1:5000/projects/${projectID}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: name
+            })
+        })
+        .then((response) => {
+            return response.json();
+        })
+        .then(() => {
+
+            //refresh the project list after a successful update
+            loadProjects(projectID);
+        })
+        .catch((error) => {
+            alert("Failed to update project: " + error.message);
+        });
+    });
+}
+
+//deletes an existing project
+function deleteProject(projectID) {
+
+    //confirm before permanently deleting the project and its endpoints
+    if (!confirm("Delete this project and all its endpoints?")) {
+        return;
+    }
+
+    fetch(`http://127.0.0.1:5000/projects/${projectID}`, {
+        method: "DELETE"
+    })
+    .then((response) => {
+        return response.json();
+    })
+    .then(() => {
+
+        //clear selection if the deleted project was currently selected
+        if (selectedProjectID === projectID) {
+            selectedProjectID = null;
+            selectedEndpoint = null;
+        }
+
+        //refresh the project list after deletion
+        loadProjects();
+    })
+    .catch((error) => {
+
+        //display a basic error if deleting the project fails
+        alert("Failed to delete project: " + error.message);
+    });
+}
+
+//fetches and displays all endpoints
+function loadEndpoints(projectID, projectItem) {
+    fetch(`http://127.0.0.1:5000/projects/${projectID}/endpoints`, {
+        method: "GET"
+    }).then((response) => {
+        return response.json();
+    }).then((data) => {
+
+        //remove endpoint lists from previously selected projects
+        document.querySelectorAll(".endpoint-list").forEach((list) => list.remove());
+
+        //create a new endpoint list inside the selected project
+        const endpointList = document.createElement("ul");
+        endpointList.className = "endpoint-list";
+
+        for (const ep of data) {
+            const endpointItem = document.createElement("li");
+
+            //attach the backend endpoint ID to the endpoint list item
+            endpointItem.dataset.endpointId = ep.id;
+
+            //create endpoint name display
+            const endpointName = document.createElement("span");
+            endpointName.className = "endpoint-name";
+            endpointName.textContent = ep.name;
+
+            //create endpoint Edit button
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+
+            //create endpoint Delete button
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+
+            //handle endpoint selection
+            endpointItem.addEventListener("click", (event) => {
+                event.stopPropagation();
+
+                //store the complete endpoint object for use by the request builder
+                selectedEndpoint = ep;
+                loadEndpointIntoBuilder(ep);
+                console.log(selectedEndpoint);
+            });
+
+            //handle endpoint editing
+            editButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+
+                //store which endpoint is being edited
+                editingEndpointID = ep.id;
+
+                //load the endpoint's existing configuration into the request builder
+                selectedEndpoint = ep;
+                loadEndpointIntoBuilder(ep);
+
+                //change Save button into Update button
+                saveEndpointButton.textContent = "Update";
+            });
+
+            //handle endpoint deletion
+            deleteButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+
+                deleteEndpoint(projectID, ep.id);
+            });
+
+            endpointItem.appendChild(endpointName);
+            endpointItem.appendChild(editButton);
+            endpointItem.appendChild(deleteButton);
+
+            endpointList.appendChild(endpointItem);
+        }
+
+        //attach this project's endpoints underneath its project item
+        projectItem.appendChild(endpointList);
+    });
+}
+
+//populates the request builder after an endpoint is selected
+function loadEndpointIntoBuilder(endpoint) {
+
+    //populate all editable endpoint configuration fields
+    endpointNameInput.value = endpoint.name;
+    methodSelect.value = endpoint.method;
+    urlInput.value = endpoint.url;
+
+    if (endpoint.body === null) {
+        bodyInput.value = "";
+    } else {
+        bodyInput.value = JSON.stringify(endpoint.body, null, 2);
+    }
+}
+
+//saves a new endpoint or updates an existing endpoint
+function saveEndpoint() {
+
+    //a project must be selected before an endpoint can be saved
+    if (selectedProjectID === null) {
+        alert("Select a project first!");
+        return;
+    }
+
+    //read the endpoint details from the request builder
+    const name = endpointNameInput.value;
+    const method = methodSelect.value;
+    const url = urlInput.value;
+    const body = bodyInput.value;
+
+    //prevent an empty endpoint name
+    if (name.trim() === "") {
+        alert("Endpoint name can't be empty!");
+        return;
+    }
+
+    //prevent an empty URL
+    if (url.trim() === "") {
+        alert("URL can't be empty!");
+        return;
+    }
+
+    //parse the request body only when one is provided
+    let parsedBody = null;
+
+    if (body.trim() !== "") {
+        try {
+            parsedBody = JSON.parse(body);
+        } catch {
+            alert("Body must contain valid JSON!");
+            return;
+        }
+    }
+
+    //choose PATCH when editing, otherwise POST when creating
+    const isEditing = editingEndpointID !== null;
+
+    const urlPath = isEditing
+        ? `http://127.0.0.1:5000/projects/${selectedProjectID}/endpoints/${editingEndpointID}`
+        : `http://127.0.0.1:5000/projects/${selectedProjectID}/endpoints`;
+
+    const methodType = isEditing ? "PATCH" : "POST";
+
+    fetch(urlPath, {
+        method: methodType,
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: name,
+            method: method,
+            url: url,
+            body: parsedBody
+        })
+    })
+    .then((response) => {
+        return response.json();
+    })
+    .then(() => {
+
+        //reset endpoint editing state after a successful save/update
+        editingEndpointID = null;
+        selectedEndpoint = null;
+
+        //restore the button to normal Save mode
+        saveEndpointButton.textContent = "Save";
+
+        //clear the endpoint name field
+        endpointNameInput.value = "";
+
+        //refresh the endpoint list for the currently selected project
+        const selectedProjectItem =
+            document.querySelector(`[data-project-id="${selectedProjectID}"]`);
+
+        loadEndpoints(selectedProjectID, selectedProjectItem);
+    })
+    .catch((error) => {
+
+        //display a basic error if saving/updating the endpoint fails
+        alert("Failed to save endpoint: " + error.message);
+    });
+}
+
+//deletes an existing endpoint
+function deleteEndpoint(projectID, endpointID) {
+
+    //confirm before permanently deleting the endpoint
+    if (!confirm("Delete this endpoint?")) {
+        return;
+    }
+
+    fetch(`http://127.0.0.1:5000/projects/${projectID}/endpoints/${endpointID}`, {
+        method: "DELETE"
+    })
+    .then((response) => {
+        return response.json();
+    })
+    .then(() => {
+
+        //clear selection if the deleted endpoint was currently selected
+        if (selectedEndpoint && selectedEndpoint.id === endpointID) {
+            selectedEndpoint = null;
+            editingEndpointID = null;
+        }
+
+        //restore the Save button in case we were editing this endpoint
+        saveEndpointButton.textContent = "Save";
+
+        //refresh the endpoint list for the selected project
+        const selectedProjectItem =
+            document.querySelector(`[data-project-id="${projectID}"]`);
+
+        loadEndpoints(projectID, selectedProjectItem);
+    })
+    .catch((error) => {
+
+        //display a basic error if endpoint deletion fails
+        alert("Failed to delete endpoint: " + error.message);
     });
 }
 
