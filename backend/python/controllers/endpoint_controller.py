@@ -12,8 +12,10 @@ class EndpointController:
         name = data["name"] #extract the endpoint name from the request
         method = data["method"] #extract the method from the request
         url = data["url"] #extract the url from the request
+        params = data.get("params") #extract the params from the request the safer way in case its None
+        headers = data.get("headers") #extract the headers from the request the safer way in case its None
         body = data.get("body") #extract the body from the request the safer way in case its None
-        endpoint = self.service.create_endpoint(project_id,name,method,url,body) #ask service layer to create the endpoint
+        endpoint = self.service.create_endpoint(project_id,name,method,url,params,headers,body) #ask service layer to create the endpoint
         return jsonify(endpoint.__dict__),201 #convert Endpoint object to JSON & return HTTP 201 (Created)
 
     #handle GET /projects/{project_id}/endpoints requests
@@ -35,8 +37,10 @@ class EndpointController:
         name = data["name"] #extract endpoint name from the request
         method = data["method"] #extract the method from the request
         url = data["url"] #extract the url from the request
+        params = data.get("params") #extract the params from the request the safer way in case its None
+        headers = data.get("headers") #extract the headers from the request the safer way in case its None
         body = data.get("body") #extract the body from the request the safer way in case its None
-        endpoint = self.service.update_endpoint(endpoint_id,name,method,url,body) #ask service layer to update the endpoint
+        endpoint = self.service.update_endpoint(endpoint_id,name,method,url,params,headers,body) #ask service layer to update the endpoint
         return jsonify(endpoint.__dict__), 200 #return updated Endpoint object & return HTTP 200 (OK/Updated)
     
     #handle DELETE /projects/{id}/endpoints requests

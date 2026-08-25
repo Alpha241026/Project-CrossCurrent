@@ -7,4 +7,6 @@ class Endpoint:
     name: str
     method: str
     url: str
+    params: dict
+    headers: dict
     body: dict | None #type hinting with union types; body attribute can either be a dictionary or none

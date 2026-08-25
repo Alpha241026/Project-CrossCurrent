@@ -12,7 +12,7 @@ class EndpointService:
 
 
     #business logic for creating an endpoint
-    def create_endpoint(self, project_id: int, name: str, method: str, url: str, body: dict | None) -> Endpoint:
+    def create_endpoint(self, project_id: int, name: str, method: str, url: str, params: dict | None, headers: dict | None, body: dict | None) -> Endpoint:
 
         #reject empty or whitespace-only endpoint names
         if name.strip() == "":
@@ -46,6 +46,8 @@ class EndpointService:
             name=name,
             method=method,
             url=url,
+            params=params,
+            headers=headers,
             body=body
         )
 
@@ -76,7 +78,7 @@ class EndpointService:
 
 
     #business logic for updating an existing endpoint
-    def update_endpoint(self, endpoint_id: int, name: str, method: str, url: str, body: dict | None) -> Endpoint:
+    def update_endpoint(self, endpoint_id: int, name: str, method: str, url: str, params: dict | None, headers: dict | None, body: dict | None) -> Endpoint:
 
         #reject empty or whitespace-only endpoint names
         if name.strip() == "":
@@ -104,6 +106,8 @@ class EndpointService:
             name=name,
             method=method,
             url=url,
+            params=params,
+            headers=headers,
             body=body
         )
 
