@@ -4,6 +4,10 @@ const proList = document.querySelector("#project-list");
 
 const methodSelect = document.querySelector("#method");
 const urlInput = document.querySelector("#url");
+const paramsContainer = document.querySelector("#params-container");
+const addParamButton = document.querySelector("#add-param-btn");
+const headersContainer = document.querySelector("#headers-container");
+const addHeadersButton = document.querySelector("#add-headers-btn");
 const bodyInput = document.querySelector("#request-body");
 const endpointNameInput = document.querySelector("#endpoint-name");
 
@@ -18,6 +22,12 @@ let selectedEndpoint = null; //store the currently selected endpoint and its req
 let editingEndpointID = null; //store the ID of the endpoint currently being edited
 
 proButton.addEventListener("click", createProject); //create a project when the button is clicked
+addParamButton.addEventListener("click", () => { //create a params row when the button is clicked
+    paramsContainer.appendChild(createParamRow());
+});
+addHeadersButton.addEventListener("click", () => { //create a headers row when the button is clicked
+    headersContainer.appendChild(createHeadersRow());
+});
 saveEndpointButton.addEventListener("click", saveEndpoint); //save the endpoint in the menu when the button is clicked
 sendButton.addEventListener("click", sendRequest);  //send the configured HTTP request
 
@@ -282,17 +292,138 @@ function loadEndpoints(projectID, projectItem) {
 
 //populates the request builder after an endpoint is selected
 function loadEndpointIntoBuilder(endpoint) {
-
-    //populate all editable endpoint configuration fields
-    endpointNameInput.value = endpoint.name;
     methodSelect.value = endpoint.method;
     urlInput.value = endpoint.url;
 
+    //clear existing parameter rows before loading the endpoint's params
+    paramsContainer.innerHTML = "";
+
+    //recreate a row for every saved parameter
+    for (const [key, value] of Object.entries(endpoint.params || {})) {
+        const row = createParamRow();
+
+        row.children[0].value = key;
+        row.children[1].value = value;
+
+        paramsContainer.appendChild(row);
+    }
+
+    //clear existing header rows before loading the endpoint's headers
+    headersContainer.innerHTML = "";
+
+    //recreate a row for every saved header
+    for (const [key, value] of Object.entries(endpoint.headers || {})) {
+        const row = createHeadersRow();
+
+        row.children[0].value = key;
+        row.children[1].value = value;
+
+        headersContainer.appendChild(row);
+    }
+
+    //load the saved request body
     if (endpoint.body === null) {
         bodyInput.value = "";
     } else {
         bodyInput.value = JSON.stringify(endpoint.body, null, 2);
     }
+}
+
+//creates params row
+function createParamRow() {
+    //creating parent div
+    const row = document.createElement("div");
+    row.className = "param-row";
+
+    //creating the three child elements below
+    const keyInput = document.createElement("input");
+    keyInput.placeholder = "Key";
+
+    const valueInput = document.createElement("input");
+    valueInput.placeholder = "Value";
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+
+    //make the button remove its own row
+    deleteButton.addEventListener("click", () => {
+        row.remove();
+    });
+
+    //attaching children to the row
+    row.appendChild(keyInput);
+    row.appendChild(valueInput);
+    row.appendChild(deleteButton);
+
+    return row; //returning the finished row
+}
+
+//creates headers row
+function createHeadersRow() {
+    //creating parent div
+    const row = document.createElement("div");
+    row.className = "header-row";
+
+    //creating the three child elements below
+    const keyInput = document.createElement("input");
+    keyInput.placeholder = "Key";
+
+    const valueInput = document.createElement("input");
+    valueInput.placeholder = "Value";
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+
+    //make the button remove its own row
+    deleteButton.addEventListener("click", () => {
+        row.remove();
+    });
+
+    //attaching children to the row
+    row.appendChild(keyInput);
+    row.appendChild(valueInput);
+    row.appendChild(deleteButton);
+
+    return row; //returning the finished row
+}
+
+//collects all parameter rows from the Params editor
+function collectParams() {
+    const params = {};
+
+    const rows = paramsContainer.querySelectorAll(".param-row");
+
+    for (const row of rows) {
+        const key = row.children[0].value.trim();
+        const value = row.children[1].value;
+
+        //ignore completely empty rows
+        if (key !== "") {
+            params[key] = value;
+        }
+    }
+
+    return params;
+}
+
+
+//collects all header rows from the Headers editor
+function collectHeaders() {
+    const headers = {};
+
+    const rows = headersContainer.querySelectorAll(".header-row");
+
+    for (const row of rows) {
+        const key = row.children[0].value.trim();
+        const value = row.children[1].value;
+
+        //ignore completely empty rows
+        if (key !== "") {
+            headers[key] = value;
+        }
+    }
+
+    return headers;
 }
 
 //saves a new endpoint or updates an existing endpoint
@@ -309,6 +440,8 @@ function saveEndpoint() {
     const method = methodSelect.value;
     const url = urlInput.value;
     const body = bodyInput.value;
+    const params = collectParams();
+    const headers = collectHeaders();
 
     //prevent an empty endpoint name
     if (name.trim() === "") {
@@ -352,6 +485,8 @@ function saveEndpoint() {
             name: name,
             method: method,
             url: url,
+            params: params,
+            headers: headers,
             body: parsedBody
         })
     })
@@ -427,6 +562,8 @@ function sendRequest() {
     //read the request inputs
     const method = methodSelect.value;
     const url = urlInput.value;
+    const params = collectParams();
+    const headers = collectHeaders();
     const body = bodyInput.value;
 
     //parse the request body only when one is provided
@@ -460,6 +597,8 @@ function sendRequest() {
         body: JSON.stringify({
             method: method,
             url: url,
+            params: params,
+            headers: headers,
             body: method === "GET" ? null : parsedBody
         })
 

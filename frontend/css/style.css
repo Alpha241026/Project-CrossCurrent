@@ -251,3 +251,32 @@ textarea {
 .json-section {
     padding: 16px;
 }
+
+/* ================= Param / Header Rows ================= */
+
+.param-row,
+.header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.param-row input,
+.header-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.param-row button,
+.header-row button {
+    flex: 0 0 auto;
+}
+
+
+/* ================= Add Row Buttons ================= */
+
+#add-param-btn,
+#add-headers-btn {
+    margin-top: 4px;
+}
