@@ -9,8 +9,10 @@ def execute():
     #extract request details from the payload
     method = data.get("method")
     url = data.get("url")
+    params = data.get("params")
+    headers = data.get("headers")
     body = data.get("body")
     
-    result = execute_request(method,url,body) #let the service execute the HTTP request
+    result = execute_request(method,url,params,headers,body) #let the service execute the HTTP request
     
     return jsonify(result) #return the service result back to the frontend as JSON

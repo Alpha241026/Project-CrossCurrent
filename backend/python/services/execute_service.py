@@ -1,16 +1,19 @@
 import requests
 
 #executes an HTTP request to target API
-def execute_request(method,url,body):
+def execute_request(method,url,params, headers,body):
 
+    params = params or {}
+    headers = headers or {}
+    
     if method=="GET": #sending GET request
-        response = requests.get(url)
+        response = requests.get(url, params=params, headers=headers)
     elif method == "POST": #sending POST request with a JSON body
-        response = requests.post(url, json=body)
+        response = requests.post(url, params=params, headers=headers, json=body)
     elif method == "PATCH": #sending PATCH request with a JSON body
-        response = requests.patch(url, json=body)
+        response = requests.patch(url, params=params, headers=headers, json=body)
     elif method == "DELETE": #sedning DELETE request with a optional JSON body
-        response = requests.delete(url, json=body)
+        response = requests.delete(url, params=params, headers=headers, json=body)
     
     try :
         res_body = response.json()
