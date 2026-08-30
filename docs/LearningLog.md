@@ -176,3 +176,45 @@ Common Bugs:
 - Frontend options code remained after the execution request configuration had already been rebuilt, causing an undefined-variable error for non-GET requests.
 
 __________________________________________________________________________________________________________________________
+
+# ------------------------------ SLICE 4 ------------------------------**
+
+## Topic
+
+Request Params & Headers + Dynamic Request Builder
+
+## Reason
+
+Extend the Request Builder so Endpoints can represent more complete HTTP request configurations through query parameters and custom headers.
+
+## Status
+
+✅ Completed
+
+## Notes
+
+Covered:
+
+- Dynamic DOM generation for Params and Headers
+- Key-value row creation and deletion using JavaScript
+- Collecting Params and Headers into request data
+- Persisting and restoring Params and Headers with Endpoints
+- Updating request execution to include query parameters and custom headers
+- Loading complete saved Endpoint configuration back into the Request Builder
+- Basic responsive/flexible CSS layout for the expanded Request Builder
+
+Key Learnings:
+
+- Dynamic UI elements can be created and managed through reusable DOM functions.
+- Params and Headers belong to the request configuration and should travel with the Endpoint.
+- Saved configuration should reconstruct the same Request Builder state when an Endpoint is selected.
+- Query parameters modify the outgoing URL, while headers belong to the HTTP request metadata.
+
+Common Bugs:
+
+- Params and Headers initially rendered as separate stacked inputs instead of compact key-value rows.
+- Dynamically generated rows required their own event listeners for deletion.
+- Saved Params and Headers initially needed explicit reconstruction when loading an Endpoint.
+- Execution had to be updated so the newly stored Params and Headers actually reached the external API.
+
+___________________________________________________________________________________________________________

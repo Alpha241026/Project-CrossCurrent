@@ -46,7 +46,7 @@ Go-HTTP/
 - MDN addEventListener()
 - MDN Event.currentTarget
 
-Builder practice:
+### Builder practice:
 
 JavaScript frontend work in frontend/js/main.js
 
@@ -57,7 +57,7 @@ JavaScript frontend work in frontend/js/main.js
 - Official Flask documentation — Routing / Blueprints
 - Python requests documentation — HTTP methods and JSON requests
 
-Builder practice:
+### Builder practice:
 
 Chimera Slice 3 — layered Project / Endpoint CRUD implementation
 
@@ -65,3 +65,23 @@ Chimera Slice 3 — layered Project / Endpoint CRUD implementation
 ## API Client References
 
 - Hoppscotch — REST client / saved request and collection interaction reference
+
+
+# ------------------------------ SLICE 4 ------------------------------
+
+
+## JavaScript / Frontend
+
+- MDN Document.createElement()
+- MDN appendChild()
+- MDN className
+- MDN remove()
+
+### Builder practice:
+
+Dynamic Params / Headers editors in `frontend/js/main.js`
+
+
+## API Client Reference**
+
+- Thunder Client — Params / Headers request-builder layout reference

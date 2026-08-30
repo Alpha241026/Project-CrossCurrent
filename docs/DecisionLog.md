@@ -461,3 +461,57 @@ Reason:
 Slice 3 focuses on resource management and workflow integration; durable persistence remains a later architectural step.
 
 __________________________________________________________________________________________________________
+
+# ------------------------------ SLICE 4 ------------------------------
+
+- ## D028 : Params and Headers will use dynamic key-value rows.
+
+Decision:
+
+Users can add or remove Params and Headers dynamically from the Request Builder.
+
+Each row contains:
+
+Key | Value | Delete
+
+Reason:
+
+Keeps request configuration flexible without requiring a fixed number of fields.
+
+__________________________________________________________________________________________________________
+
+- ## D029 : Params and Headers will share the same row-generation pattern.
+
+Decision:
+
+Params and Headers use separate row-creation functions but follow the same DOM structure and interaction pattern.
+
+Reason:
+
+Keeps the frontend implementation consistent while preserving clear separation between query parameters and HTTP headers.
+
+_________________________________________________________________________________________________________
+
+- ## D030 : Saved Params and Headers will be reconstructed in the Request Builder.
+
+Decision:
+
+Selecting a saved Endpoint restores its stored Params and Headers into dynamically generated rows.
+
+Reason:
+
+The Request Builder should represent the complete saved Endpoint configuration rather than only its method, URL and body.
+
+________________________________________________________________________________________________________
+
+- ## D031 : The Request Builder remains the single request-configuration surface.
+
+Decision:
+
+Params and Headers are configured, edited and reviewed directly inside the existing Request Builder.
+
+Reason:
+
+Avoids introducing separate configuration screens and keeps Endpoint editing centered around the executable request.
+
+_______________________________________________________________________________________________________

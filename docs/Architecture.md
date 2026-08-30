@@ -835,3 +835,68 @@ Deleting a project also deletes its child endpoints.
 
 _____________________________________________________________
 
+# ------------------------------ SLICE 4 ------------------------------
+
+## Slice 4 — Request Parameters + Headers
+
+Slice 4 extends Endpoint configuration to include query parameters and HTTP headers.
+
+The Endpoint structure now includes:
+
+Endpoint
+├── id
+├── project_id
+├── name
+├── method
+├── url
+├── params
+├── headers
+└── body
+
+The Request Builder now provides dynamic editors for both Params and Headers.
+
+Each row contains:
+
+Key | Value | Delete
+
+Users can add or remove rows dynamically.
+
+_____________________________________________________________
+
+## Slice 4 Request Configuration Flow
+
+Select Endpoint
+      ↓
+Load Endpoint Configuration
+      ↓
+Method / URL / Params / Headers / Body
+      ↓
+Modify if required
+      ↓
+Save or Send
+
+Saved endpoints reconstruct their Params and Headers when loaded into the Request Builder.
+
+_____________________________________________________________
+
+## Slice 4 Execution Integration
+
+Params and Headers are collected by the frontend and included in the existing execution payload.
+
+The execution pipeline remains:
+
+Frontend
+   ↓
+POST /execute
+   ↓
+Execution Controller
+   ↓
+Execution Service
+   ↓
+External HTTP API
+
+The execution layer now uses the configured query parameters and headers when making the outbound request.
+
+Slice 4 does not introduce a new execution architecture; it extends the existing request configuration flow. 
+
+________________________________________________________________
