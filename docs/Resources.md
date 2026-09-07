@@ -85,3 +85,14 @@ Dynamic Params / Headers editors in `frontend/js/main.js`
 ## API Client Reference**
 
 - Thunder Client — Params / Headers request-builder layout reference
+
+
+# ------------------------------ SLICE 5 ------------------------------
+
+## PostgreSQL / Persistence
+
+- Official psycopg documentation — PostgreSQL connections and SQL execution
+
+### Builder practice:
+
+Chimera Slice 5 — PostgreSQL-backed Project / Endpoint repositories

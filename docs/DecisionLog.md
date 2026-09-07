@@ -515,3 +515,75 @@ Reason:
 Avoids introducing separate configuration screens and keeps Endpoint editing centered around the executable request.
 
 _______________________________________________________________________________________________________
+
+# ------------------------------ SLICE 5 ------------------------------
+
+- ## D032 : Project and Endpoint persistence will move from in-memory storage to PostgreSQL.
+
+Decision:
+
+The Repository layer will use PostgreSQL as the persistent storage backend.
+
+Reason:
+
+The resource model is stable enough to introduce durable persistence without changing the surrounding layered architecture.
+
+The frontend, Controllers and Services remain independent of the storage implementation.
+
+______________________________________________________________________________________________________
+
+- ## D033 : PostgreSQL will generate Project and Endpoint IDs.
+
+Decision:
+
+Use PostgreSQL identity columns for integer IDs instead of generating IDs in application code.
+
+Reason:
+
+The database is responsible for persistent identity generation, while integer IDs remain simple and sufficient for Version 1.
+
+______________________________________________________________________________________________________
+
+- ## D034 : Endpoint request configuration will use PostgreSQL JSONB.
+
+Decision:
+
+Params, Headers and request Body will be stored as JSONB fields.
+
+Reason:
+
+These structures are naturally key-value / JSON-shaped and do not require separate relational tables for Version 1.
+
+This keeps the schema simple while preserving the complete Endpoint configuration.
+
+________________________________________________________________________________________________________
+
+- ## D035 : Project deletion cascading will be enforced by PostgreSQL.
+
+Decision:
+
+The Project → Endpoint relationship uses a foreign key with `ON DELETE CASCADE`.
+
+Reason:
+
+Endpoint ownership is already defined at the domain level, so the database should enforce the same invariant when a Project is deleted.
+
+This replaces the earlier application-level cascade implementation.
+
+________________________________________________________________________________________________________
+
+- ## D036 : Python and Go remain permanent backend technologies.
+
+Decision:
+
+The PostgreSQL migration does not trigger a rewrite of existing Python responsibilities into Go.
+
+Python continues handling the established API, resource management and application coordination.
+
+Go will be assigned meaningful new backend responsibilities in later slices rather than being used merely to replace existing Python code.
+
+Reason:
+
+Technology choice should follow responsibility and learning value, not an arbitrary language quota.
+
+__________________________________________________________________________________________________________

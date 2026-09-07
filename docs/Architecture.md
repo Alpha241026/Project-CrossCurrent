@@ -900,3 +900,57 @@ The execution layer now uses the configured query parameters and headers when ma
 Slice 4 does not introduce a new execution architecture; it extends the existing request configuration flow. 
 
 ________________________________________________________________
+
+
+# ------------------------------ SLICE 5 ------------------------------
+
+## Slice 5 — PostgreSQL Persistence
+
+Slice 5 replaces the in-memory Project and Endpoint repositories with PostgreSQL persistence while keeping the existing layered architecture unchanged.
+
+Current flow:
+
+Frontend
+   ↓
+Route
+   ↓
+Controller
+   ↓
+Service
+   ↓
+Repository
+   ↓
+PostgreSQL
+
+_____________________________________________________________
+
+### Persistence Model
+
+PostgreSQL now owns:
+
+- Project and Endpoint IDs through identity columns
+- created_at / updated_at timestamps
+- Project → Endpoint ownership through a foreign key
+- cascading Endpoint deletion when a Project is deleted
+
+Endpoint `params`, `headers`, and `body` are stored as JSONB.
+
+_______________________________________________________________
+
+### Resource Metadata
+
+Projects and Endpoints now support optional descriptions.
+
+Descriptions are persisted alongside the resource and exposed in the frontend.
+
+_______________________________________________________________
+
+### Architecture Boundary
+
+The PostgreSQL migration changes the repository implementation, not the responsibility of the surrounding layers.
+
+The Service layer continues to handle validation and business logic, while the Repository handles database access and mapping between database rows and domain models.
+
+This preserves the layered architecture while making resource state persistent across application restarts.
+
+_______________________________________________________________

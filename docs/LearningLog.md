@@ -217,4 +217,50 @@ Common Bugs:
 - Saved Params and Headers initially needed explicit reconstruction when loading an Endpoint.
 - Execution had to be updated so the newly stored Params and Headers actually reached the external API.
 
-___________________________________________________________________________________________________________
+________________________________________________________________________________________________________________________
+
+
+# ------------------------------ SLICE 5 ------------------------------
+
+## Topic
+
+PostgreSQL Persistence + JSONB + Database-backed Repositories
+
+## Reason
+
+Replace temporary in-memory storage with durable PostgreSQL persistence while preserving the existing layered architecture.
+
+## Status
+
+✅ Completed
+
+## Notes
+
+Covered:
+
+- PostgreSQL connection using `psycopg`
+- Environment-based database configuration with `.env`
+- SQL schema design for Projects and Endpoints
+- Identity-generated integer IDs
+- PostgreSQL foreign keys and `ON DELETE CASCADE`
+- Repository-based CRUD using SQL
+- JSONB storage for Params, Headers and request Body
+- Mapping database rows back into domain models
+- Persisting Project and Endpoint descriptions
+
+Key Learnings:
+
+- A Repository abstraction allows persistence to change without redesigning higher application layers.
+- Database-generated IDs and timestamps should come from the database rather than application code.
+- JSON-shaped request configuration can be stored as JSONB without introducing unnecessary relational tables.
+- Database constraints can enforce domain ownership rules such as Project → Endpoint cascading.
+- PostgreSQL persistence makes backend state survive application restarts.
+
+Common Bugs:
+
+- PostgreSQL could not adapt Python dictionaries directly for JSONB parameters; `psycopg.types.json.Jsonb` was required.
+- Database-generated IDs required removing the previous in-memory ID generation logic.
+- Project deletion logic had to be aligned with the database's `ON DELETE CASCADE` behavior.
+- Project descriptions were initially persisted but not displayed in the normal sidebar UI.
+
+_________________________________________________________________________________________________________________________
