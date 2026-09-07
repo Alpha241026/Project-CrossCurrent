@@ -1,4 +1,5 @@
 from flask import Flask
+from database.connection import get_connection
 
 from repositories.project_repo import ProjectRepository
 from repositories.endpoint_repo import EndpointRepository
@@ -17,10 +18,9 @@ from routes.execute_route import register_execute_routes
 app = Flask(__name__)  #create Flask application instance
 
 
-#build repository objects
-project_repo = ProjectRepository()
-endpoint_repo = EndpointRepository()
-
+#build repository objects and inject the PostgreSQL connection factory
+project_repo = ProjectRepository(get_connection)
+endpoint_repo = EndpointRepository(get_connection)
 
 #build service objects and inject their repository dependencies
 project_service = ProjectService(project_repo, endpoint_repo)

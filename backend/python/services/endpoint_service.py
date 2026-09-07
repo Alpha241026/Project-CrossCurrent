@@ -12,7 +12,7 @@ class EndpointService:
 
 
     #business logic for creating an endpoint
-    def create_endpoint(self, project_id: int, name: str, method: str, url: str, params: dict | None, headers: dict | None, body: dict | None) -> Endpoint:
+    def create_endpoint(self, project_id: int, name: str, method: str, url: str, description: str | None, params: dict | None, headers: dict | None, body: dict | None) -> Endpoint:
 
         #reject empty or whitespace-only endpoint names
         if name.strip() == "":
@@ -33,29 +33,21 @@ class EndpointService:
         if existing_pro is None:
             raise ValueError("Project doesn't exist")
 
-        #get existing endpoints to generate a new global ID
-        existing_endpoints = self.repository.get_endpoints()
-
-        #generate the next endpoint ID
-        new_id = max((endpoint.id for endpoint in existing_endpoints), default=0) + 1
-
-        #create the Endpoint object
+        #create the Endpoint object without generating its database ID
         endpoint = Endpoint(
-            id=new_id,
+            id=0,
             project_id=project_id,
             name=name,
             method=method,
             url=url,
-            params=params,
-            headers=headers,
-            body=body
+            params=params or {},
+            headers=headers or {},
+            body=body,
+            description=description
         )
 
-        #ask the repository to store the endpoint
-        self.repository.create_endpoint(endpoint)
-
-        #return the created endpoint
-        return endpoint
+        #ask the repository to store the endpoint and generate its database values
+        return self.repository.create_endpoint(endpoint)
 
 
     #return all endpoints belonging to a project
@@ -78,7 +70,7 @@ class EndpointService:
 
 
     #business logic for updating an existing endpoint
-    def update_endpoint(self, endpoint_id: int, name: str, method: str, url: str, params: dict | None, headers: dict | None, body: dict | None) -> Endpoint:
+    def update_endpoint(self, endpoint_id: int, name: str, method: str, url: str, description: str | None, params: dict | None, headers: dict | None, body: dict | None) -> Endpoint:
 
         #reject empty or whitespace-only endpoint names
         if name.strip() == "":
@@ -99,23 +91,26 @@ class EndpointService:
         if existing_endpoint is None:
             raise ValueError("Endpoint doesn't exist")
 
-        #create the updated Endpoint object while preserving its project
+        #create the updated Endpoint object while preserving its project and metadata
         endpoint = Endpoint(
             id=endpoint_id,
             project_id=existing_endpoint.project_id,
             name=name,
             method=method,
             url=url,
-            params=params,
-            headers=headers,
-            body=body
+            params=params or {},
+            headers=headers or {},
+            body=body,
+            description=description,
+            created_at=existing_endpoint.created_at,
+            updated_at=existing_endpoint.updated_at
         )
 
-        #replace the existing endpoint in the repository
-        self.repository.update_endpoint(endpoint_id, endpoint)
+        #ask the repository to update the endpoint in PostgreSQL
+        updated_endpoint = self.repository.update_endpoint(endpoint_id, endpoint)
 
-        #return the updated endpoint
-        return endpoint
+        #return the endpoint returned by PostgreSQL
+        return updated_endpoint
 
 
     #business logic for deleting an existing endpoint
