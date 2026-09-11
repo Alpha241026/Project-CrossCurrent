@@ -264,3 +264,51 @@ Common Bugs:
 - Project descriptions were initially persisted but not displayed in the normal sidebar UI.
 
 _________________________________________________________________________________________________________________________
+
+
+# ------------------------------ SLICE 6 ------------------------------
+
+## Topic
+
+Executions + History (Go + PostgreSQL + Python Integration)
+
+## Reason
+
+Introduce persistent execution records and execution history while giving Go a meaningful backend responsibility without replacing the established Python execution layer.
+
+## Status
+
+✅ Completed
+
+## Notes
+
+Covered:
+
+- Execution domain model and PostgreSQL persistence
+- Go PostgreSQL connection using database/sql and pgx
+- Go ExecutionRepository
+- Creating executions with database-generated IDs and timestamps
+- Retrieving executions by ID
+- Retrieving endpoint execution history
+- Go HTTP service for execution persistence and retrieval
+- Python → Go execution result integration
+- Frontend execution history and historical response inspection
+
+Key Learnings:
+
+- Go can be introduced as a specialized backend subsystem without rewriting existing Python functionality.
+- database/sql provides a clean interface for PostgreSQL repositories through context-aware queries.
+- INSERT ... RETURNING allows PostgreSQL-generated IDs and timestamps to be returned directly to Go.
+- Execution is an immutable record of an Endpoint attempt.
+- History is naturally represented as a view over an Endpoint's stored Executions rather than as a separate entity.
+- A successful external API response should remain available even if secondary history persistence fails.
+
+Common Bugs:
+
+- Go PostgreSQL connection initially required dependency installation through a different network because of a local certificate issue.
+- Execution test initially used an Endpoint ID that did not exist in the database, causing a foreign-key violation.
+- Pointer fields printed memory addresses until their values were explicitly dereferenced during testing.
+- Empty execution history initially returned null instead of an empty collection.
+- The History UI initially conflicted with the existing workspace layout and required layout adjustment.
+
+_________________________________________________________________________________________________________________________

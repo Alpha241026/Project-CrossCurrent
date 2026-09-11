@@ -954,3 +954,96 @@ The Service layer continues to handle validation and business logic, while the R
 This preserves the layered architecture while making resource state persistent across application restarts.
 
 _______________________________________________________________
+
+
+# ------------------------------ SLICE 6 ------------------------------
+
+## Slice 6 — Executions + History
+
+Slice 6 introduces persistent execution history while keeping the existing Python execution flow.
+
+The execution architecture is now:
+
+Frontend
+   ↓
+POST /execute
+   ↓
+Flask Route
+   ↓
+Execution Controller
+   ↓
+Execution Service
+   ↓
+External HTTP API
+   ↓
+Execution result
+   ├──────────────→ Frontend
+   │                 Response Viewer
+   │
+   └──────────────→ Go Execution Service
+                         ↓
+                  Execution Repository
+                         ↓
+                    PostgreSQL
+
+Python remains responsible for performing the outbound HTTP request.
+
+Go owns the new execution-history persistence and retrieval subsystem.
+
+____________________________________________________________
+
+## Execution Model
+
+Execution
+├── id
+├── endpoint_id
+├── executed_at
+├── status_code
+├── response_time
+├── response_headers
+├── response_body
+└── error_message
+
+Executions are immutable records representing individual attempts to execute an Endpoint.
+
+________________________________________________________
+
+## Go Execution History API
+
+POST /executions
+
+Stores a completed execution record.
+
+GET /executions/endpoint/{endpoint_id}
+
+Retrieves execution history for an Endpoint, newest first.
+
+History is a view over stored Executions rather than a separate History entity.
+
+_________________________________________________________
+
+## History UI
+
+Selecting an Endpoint loads its execution history.
+
+Each history entry displays:
+
+- status code
+- response time
+- execution timestamp
+
+Selecting an entry displays its saved response body in the Response Viewer.
+
+The History panel can also be refreshed independently.
+
+__________________________________________________________
+
+## Persistence Responsibility
+
+PostgreSQL remains the source of truth for persistent Project, Endpoint and Execution state.
+
+Python repositories continue to manage Project and Endpoint persistence.
+
+Go manages Execution persistence through its ExecutionRepository.
+
+______________________________________________________________

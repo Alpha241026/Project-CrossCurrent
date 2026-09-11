@@ -587,3 +587,67 @@ Reason:
 Technology choice should follow responsibility and learning value, not an arbitrary language quota.
 
 __________________________________________________________________________________________________________
+
+# ------------------------------ SLICE 6 ------------------------------
+
+## D037 : Execution history will be persisted through a dedicated Go subsystem.
+
+Decision:
+
+Go will own persistence and retrieval of Execution records through a small HTTP service.
+
+Reason:
+
+This gives Go a meaningful backend responsibility without rewriting the established Python execution layer.
+
+__________________________________________________________________________________________________________
+
+## D038 : Python will continue performing outbound HTTP requests.
+
+Decision:
+
+The existing Python ExecutionService continues to use requests for external API communication.
+
+After execution, Python sends the resulting Execution record to Go for persistence.
+
+Reason:
+
+The existing execution path is already established and working. Go is introduced as new functionality rather than as a rewrite target.
+
+__________________________________________________________________________________________________________
+
+## D039 : Execution history will be associated directly with Endpoints.
+
+Decision:
+
+Each Execution stores endpoint_id and belongs to one Endpoint.
+
+Reason:
+
+An Endpoint can be executed multiple times, making Execution the natural immutable record of each attempt.
+
+__________________________________________________________________________________________________________
+
+## D040 : History will remain a view over Executions.
+
+Decision:
+
+History is not introduced as a separate database entity.
+
+Reason:
+
+History represents previously recorded Executions and does not require duplicated data.
+
+__________________________________________________________________________________________________________
+
+## D041 : History persistence failure will not hide a successful API response.
+
+Decision:
+
+If the external request succeeds but the Go history service is unavailable, the frontend still receives the external API result.
+
+Reason:
+
+Execution is the primary operation; history is supporting functionality in V1.
+
+__________________________________________________________________________________________________________

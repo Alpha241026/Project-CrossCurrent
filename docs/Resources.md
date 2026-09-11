@@ -96,3 +96,24 @@ Dynamic Params / Headers editors in `frontend/js/main.js`
 ### Builder practice:
 
 Chimera Slice 5 — PostgreSQL-backed Project / Endpoint repositories
+
+
+# ------------------------------ SLICE 6 ------------------------------
+
+
+## Slice 6 — Executions + History
+
+### Go
+
+- Go `net/http` package — HTTP server and handlers
+- Go `database/sql` package — database access and context-aware queries
+- Go `encoding/json` package — JSON encoding and decoding
+
+### PostgreSQL / Go
+
+- pgx — PostgreSQL driver for Go
+
+### Frontend
+
+- MDN Date object
+- MDN DOM event handling
