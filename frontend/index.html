@@ -21,6 +21,11 @@
             
             <div class="create-pro">
                 <input id="pro-input" type="text" name="ProName" placeholder="Enter project name...">
+
+                <textarea
+                    id="pro-description-input"
+                    placeholder="Project description...">
+                </textarea>
                 
                 <button id="pro-button" type="button">Create project</button>
             </div>
@@ -43,9 +48,9 @@
                         <div class="url-section">
                             <label>URL</label>
                             <input
-                            type="text"
-                            id="url"
-                            placeholder="https://api.example.com/users">
+                                type="text"
+                                id="url"
+                                placeholder="https://api.example.com/users">
                         </div>
 
                         <div class="endpoint-name-section">
@@ -69,6 +74,14 @@
                             </button>
                         </div>
 
+                    </div>
+
+                    <div class="endpoint-description-section">
+                        <label>Endpoint Description</label>
+                        <textarea
+                            id="endpoint-description"
+                            placeholder="Describe what this endpoint is used for...">
+                        </textarea>
                     </div>
 
                     <div class="params-section">
@@ -107,6 +120,20 @@
                         </pre>
                     </div>
                 </div>
+
+                <!-- execution history for the selected endpoint -->
+                <section class="history-panel">
+
+                    <div class="history-header">
+                        <h3>History</h3>
+                        <button id="refresh-history-btn">Refresh</button>
+                    </div>
+
+                    <div id="history-list" class="history-list">
+                        <p class="history-empty">No execution history yet</p>
+                    </div>
+
+                </section>
             </div>
         </div>
 

@@ -1,4 +1,5 @@
 const proInput = document.querySelector("#pro-input");
+const proDescriptionInput = document.querySelector("#pro-description-input");
 const proButton = document.querySelector("#pro-button");
 const proList = document.querySelector("#project-list");
 
@@ -10,6 +11,7 @@ const headersContainer = document.querySelector("#headers-container");
 const addHeadersButton = document.querySelector("#add-headers-btn");
 const bodyInput = document.querySelector("#request-body");
 const endpointNameInput = document.querySelector("#endpoint-name");
+const endpointDescriptionInput = document.querySelector("#endpoint-description");
 
 const saveEndpointButton = document.querySelector("#save-endpoint-btn");
 const sendButton = document.querySelector("#send-btn");
@@ -17,23 +19,36 @@ const sendButton = document.querySelector("#send-btn");
 const statusOutput = document.querySelector("#status-output");
 const responseOutput = document.querySelector("#response-output");
 
+const historyList = document.getElementById("history-list");
+const refreshHistoryBtn = document.getElementById("refresh-history-btn");
+
 let selectedProjectID = null; //store ID of currently selected project, none project selected on initial page load
 let selectedEndpoint = null; //store the currently selected endpoint and its request configuration
 let editingEndpointID = null; //store the ID of the endpoint currently being edited
 
+
 proButton.addEventListener("click", createProject); //create a project when the button is clicked
+
+
 addParamButton.addEventListener("click", () => { //create a params row when the button is clicked
     paramsContainer.appendChild(createParamRow());
 });
+
+
 addHeadersButton.addEventListener("click", () => { //create a headers row when the button is clicked
     headersContainer.appendChild(createHeadersRow());
 });
+
+
 saveEndpointButton.addEventListener("click", saveEndpoint); //save the endpoint in the menu when the button is clicked
-sendButton.addEventListener("click", sendRequest);  //send the configured HTTP request
+sendButton.addEventListener("click", sendRequest); //send the configured HTTP request
+
+
 
 //sends a new project to the backend
 function createProject() {
     const name = proInput.value;
+    const description = proDescriptionInput.value;
 
     //prevent empty project names
     if (name.trim() == "") {
@@ -46,12 +61,20 @@ function createProject() {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({
+            name: name,
+            description: description
+        })
     }).then(() => {
-        proInput.value = ""; //clear the input and refresh the project list
+        proInput.value = "";
+        proDescriptionInput.value = "";
+
+        //clear the input fields and refresh the project list
         loadProjects();
     });
 }
+
+
 
 //fetches and displays all projects
 function loadProjects(expandProjectID = null) {
@@ -73,6 +96,11 @@ function loadProjects(expandProjectID = null) {
             const projectName = document.createElement("span");
             projectName.className = "project-name";
             projectName.textContent = project.name;
+
+            //display the project description when one exists
+            const projectDescription = document.createElement("div");
+            projectDescription.className = "project-description";
+            projectDescription.textContent = project.description || "";
 
             //create project update button
             const editButton = document.createElement("button");
@@ -98,7 +126,7 @@ function loadProjects(expandProjectID = null) {
             //handle project update without triggering project selection
             editButton.addEventListener("click", (event) => {
                 event.stopPropagation();
-                updateProject(project.id, projectItem);
+                updateProject(project.id, projectItem, project.description);
             });
 
             //handle project deletion without triggering project selection
@@ -111,6 +139,11 @@ function loadProjects(expandProjectID = null) {
             projectItem.appendChild(editButton);
             projectItem.appendChild(deleteButton);
 
+            //only display the description when the project has one
+            if (project.description) {
+                projectItem.appendChild(projectDescription);
+            }
+
             proList.appendChild(projectItem);
 
             //restore the endpoint list after refreshing an updated project
@@ -121,8 +154,10 @@ function loadProjects(expandProjectID = null) {
     });
 }
 
-//updates the name of an existing project
-function updateProject(projectID, projectItem) {
+
+
+//updates the name and description of an existing project
+function updateProject(projectID, projectItem, currentDescription) {
 
     //find the currently displayed project name
     const projectName = projectItem.querySelector(".project-name");
@@ -137,19 +172,27 @@ function updateProject(projectID, projectItem) {
     editInput.className = "project-edit-input";
     editInput.value = projectName.textContent;
 
-    //create a button to confirm the new name
+    //create an editable project description field
+    const descriptionInput = document.createElement("textarea");
+    descriptionInput.className = "project-edit-description";
+    descriptionInput.placeholder = "Description";
+    descriptionInput.value = currentDescription || "";
+
+    //create a button to confirm the new name and description
     const saveButton = document.createElement("button");
     saveButton.textContent = "Save";
 
     //replace the project name with the edit controls
     projectName.replaceWith(editInput);
-    editInput.after(saveButton);
+    editInput.after(descriptionInput);
+    descriptionInput.after(saveButton);
 
-    //save the updated project name
+    //save the updated project name and description
     saveButton.addEventListener("click", (event) => {
         event.stopPropagation();
 
         const name = editInput.value;
+        const description = descriptionInput.value;
 
         //prevent empty project names
         if (name.trim() === "") {
@@ -163,7 +206,8 @@ function updateProject(projectID, projectItem) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                name: name
+                name: name,
+                description: description
             })
         })
         .then((response) => {
@@ -179,6 +223,8 @@ function updateProject(projectID, projectItem) {
         });
     });
 }
+
+
 
 //deletes an existing project
 function deleteProject(projectID) {
@@ -211,6 +257,8 @@ function deleteProject(projectID) {
         alert("Failed to delete project: " + error.message);
     });
 }
+
+
 
 //fetches and displays all endpoints
 function loadEndpoints(projectID, projectItem) {
@@ -290,10 +338,14 @@ function loadEndpoints(projectID, projectItem) {
     });
 }
 
+
+
 //populates the request builder after an endpoint is selected
 function loadEndpointIntoBuilder(endpoint) {
     methodSelect.value = endpoint.method;
     urlInput.value = endpoint.url;
+    endpointNameInput.value = endpoint.name;
+    endpointDescriptionInput.value = endpoint.description || "";
 
     //clear existing parameter rows before loading the endpoint's params
     paramsContainer.innerHTML = "";
@@ -327,7 +379,12 @@ function loadEndpointIntoBuilder(endpoint) {
     } else {
         bodyInput.value = JSON.stringify(endpoint.body, null, 2);
     }
+
+    //load saved execution history for the selected endpoint
+    loadExecutionHistory();
 }
+
+
 
 //creates params row
 function createParamRow() {
@@ -358,6 +415,8 @@ function createParamRow() {
     return row; //returning the finished row
 }
 
+
+
 //creates headers row
 function createHeadersRow() {
     //creating parent div
@@ -387,6 +446,8 @@ function createHeadersRow() {
     return row; //returning the finished row
 }
 
+
+
 //collects all parameter rows from the Params editor
 function collectParams() {
     const params = {};
@@ -405,6 +466,7 @@ function collectParams() {
 
     return params;
 }
+
 
 
 //collects all header rows from the Headers editor
@@ -426,6 +488,8 @@ function collectHeaders() {
     return headers;
 }
 
+
+
 //saves a new endpoint or updates an existing endpoint
 function saveEndpoint() {
 
@@ -437,6 +501,7 @@ function saveEndpoint() {
 
     //read the endpoint details from the request builder
     const name = endpointNameInput.value;
+    const description = endpointDescriptionInput.value;
     const method = methodSelect.value;
     const url = urlInput.value;
     const body = bodyInput.value;
@@ -471,8 +536,8 @@ function saveEndpoint() {
     const isEditing = editingEndpointID !== null;
 
     const urlPath = isEditing
-    ? `http://127.0.0.1:5000/endpoints/${editingEndpointID}`
-    : `http://127.0.0.1:5000/projects/${selectedProjectID}/endpoints`;
+        ? `http://127.0.0.1:5000/endpoints/${editingEndpointID}`
+        : `http://127.0.0.1:5000/projects/${selectedProjectID}/endpoints`;
 
     const methodType = isEditing ? "PATCH" : "POST";
 
@@ -485,6 +550,7 @@ function saveEndpoint() {
             name: name,
             method: method,
             url: url,
+            description: description,
             params: params,
             headers: headers,
             body: parsedBody
@@ -502,8 +568,9 @@ function saveEndpoint() {
         //restore the button to normal Save mode
         saveEndpointButton.textContent = "Save";
 
-        //clear the endpoint name field
+        //clear the endpoint name and description fields
         endpointNameInput.value = "";
+        endpointDescriptionInput.value = "";
 
         //refresh the endpoint list for the currently selected project
         const selectedProjectItem =
@@ -517,6 +584,8 @@ function saveEndpoint() {
         alert("Failed to save endpoint: " + error.message);
     });
 }
+
+
 
 //deletes an existing endpoint
 function deleteEndpoint(projectID, endpointID) {
@@ -555,6 +624,8 @@ function deleteEndpoint(projectID, endpointID) {
         alert("Failed to delete endpoint: " + error.message);
     });
 }
+
+
 
 //sends an HTTP request from the request builder
 function sendRequest() {
@@ -595,6 +666,7 @@ function sendRequest() {
 
         //send the selected HTTP method, URL and parsed body to Chimera for execution
         body: JSON.stringify({
+            endpoint_id: selectedEndpoint.id,
             method: method,
             url: url,
             params: params,
@@ -620,6 +692,100 @@ function sendRequest() {
         responseOutput.textContent = error.message;
 
     });
+
+    //refresh history after a new execution
+    loadExecutionHistory();
 }
+
+
+
+//loads execution history for the currently selected endpoint
+function loadExecutionHistory() {
+
+    if (!selectedEndpoint) {
+        historyList.innerHTML = '<p class="history-empty">Select an endpoint to view history</p>';
+        return;
+    }
+
+    fetch(`http://localhost:8080/executions/endpoint/${selectedEndpoint.id}`)
+
+        .then((response) => {
+
+            if (!response.ok) {
+                throw new Error("Failed to load execution history");
+            }
+
+            return response.json();
+
+        })
+
+        .then((executions) => {
+
+            historyList.innerHTML = "";
+
+            if (executions.length === 0) {
+                historyList.innerHTML = '<p class="history-empty">No execution history yet</p>';
+                return;
+            }
+
+            executions.forEach((execution) => {
+
+                const historyItem = document.createElement("div");
+
+                historyItem.className = "history-item";
+
+                historyItem.dataset.executionId = execution.id;
+
+                const status = execution.status_code ?? "Failed";
+
+                const responseTime = execution.response_time !== null
+                    ? `${execution.response_time} ms`
+                    : "-";
+
+                const executedAt = new Date(execution.executed_at);
+
+                historyItem.innerHTML = `
+                    <span class="history-status">${status}</span>
+                    <span class="history-time">${responseTime}</span>
+                    <span class="history-date">${executedAt.toLocaleString()}</span>
+                `;
+
+                historyItem.addEventListener("click", () => {
+                    showExecution(execution);
+                });
+
+                historyList.appendChild(historyItem);
+            });
+
+        })
+
+        .catch((error) => {
+
+            historyList.innerHTML =
+                `<p class="history-error">${error.message}</p>`;
+
+        });
+}
+
+
+
+//shows the selected historical execution in the response viewer
+function showExecution(execution) {
+
+    statusOutput.textContent = execution.status_code ?? "Request Failed";
+
+    responseOutput.textContent = JSON.stringify(
+        execution.response_body,
+        null,
+        2
+    );
+}
+
+
+//reloads execution history when the user requests a refresh
+refreshHistoryBtn.addEventListener("click", () => {
+    loadExecutionHistory();
+});
+
 
 loadProjects(); //populating sidebar from existing backend state when page opens
