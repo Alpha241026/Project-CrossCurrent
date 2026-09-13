@@ -117,3 +117,15 @@ Chimera Slice 5 — PostgreSQL-backed Project / Endpoint repositories
 
 - MDN Date object
 - MDN DOM event handling
+
+
+# ------------------------------ SLICE 7 ------------------------------
+
+## Product Identity / Branding
+
+- Favicon and brand-mark design references — small-scale icon legibility and simplified visual identity
+
+## Frontend / Deployment Readiness
+
+- Browser metadata and favicon implementation references
+- Existing project documentation — final architecture, decisions and implementation history

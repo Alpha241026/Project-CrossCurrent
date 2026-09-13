@@ -651,3 +651,78 @@ Reason:
 Execution is the primary operation; history is supporting functionality in V1.
 
 __________________________________________________________________________________________________________
+
+
+# ------------------------------ SLICE 7 ------------------------------
+
+- **## D042 : The project will use CrossCurrent as its final product name.**
+
+Decision:
+
+The project name will change from Chimera/Pulse to CrossCurrent.
+
+Reason:
+
+CrossCurrent represents the interaction between independent request and response flows and the iterative nature of the workspace.
+
+The name was selected as a product identity rather than as a direct description of an API tool.
+
+_____________________________________________________________________________________________________________
+
+- **## D043 : CrossCurrent will use a dedicated abstract brand mark instead of a literal API symbol.**
+
+Decision:
+
+The favicon and compact brand mark will use two independent flowing trajectories crossing once.
+
+The mark will not use:
+
+- API symbols
+- Code brackets
+- HTTP text
+- Network nodes
+- Globes
+- Generic arrows
+- Infinity or figure-eight shapes
+- Letters or monograms
+
+Reason:
+
+The brand should communicate interaction and changing direction without visually becoming another generic API/developer tool logo.
+
+_____________________________________________________________________________________________________________
+
+- **## D044 : The CrossCurrent favicon will be designed for small-size legibility first.**
+
+Decision:
+
+The final favicon will use two bold, open-ended vector paths with a single intersection and minimal internal detail.
+
+The design will be evaluated at:
+
+512px
+
+32px
+
+16px
+
+Reason:
+
+A favicon must remain recognizable at very small sizes. Fine details, excessive shading and complex geometry were intentionally avoided in favor of a clear silhouette.
+
+_____________________________________________________________________________________________________________
+
+- **## D045 : The browser identity will use CrossCurrent metadata consistently.**
+
+Decision:
+
+The document title, favicon reference, description and theme color will use the CrossCurrent identity.
+
+Open Graph metadata will also be included for the deployed project.
+
+Reason:
+
+The browser-facing identity should match the final product name and provide a consistent presentation when the project is opened directly or shared externally.
+
+
+_____________________________________________________________________________________________________________
