@@ -22,7 +22,7 @@ const responseOutput = document.querySelector("#response-output");
 const historyList = document.getElementById("history-list");
 const refreshHistoryBtn = document.getElementById("refresh-history-btn");
 
-const API_BASE_URL = "http://127.0.0.1:5000";
+const API_BASE_URL = "https://crosscurrent-flask.onrender.com";
 
 let selectedProjectID = null; //store ID of currently selected project, none project selected on initial page load
 let selectedEndpoint = null; //store the currently selected endpoint and its request configuration
