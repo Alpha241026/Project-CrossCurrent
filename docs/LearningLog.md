@@ -355,3 +355,51 @@ Common Bugs:
 - Last-minute cleanup can introduce unnecessary changes to already stable backend behavior.
 
 ________________________________________________________________________________________________________________________________
+
+
+# ------------------------------ SLICE 8 ------------------------------
+
+## Topic
+
+Deployment + Production Environment
+
+## Reason
+
+Move CrossCurrent from local development toward a publicly hosted V1 deployment while preserving the existing architecture and service responsibilities.
+
+## Status
+
+✅ Completed
+
+## Notes
+
+Covered:
+
+- Production deployment planning with Render + Supabase
+- Static frontend deployment architecture
+- Python / Flask Web Service deployment
+- Go Execution History Web Service deployment
+- Supabase PostgreSQL production database
+- Production database initialization using the existing schema
+- Environment-based production configuration using `DATABASE_URL`
+- Go service configuration using the deployment-provided `PORT`
+- Flask → Go communication through the deployed Go service
+- Production health endpoints for Flask and Go
+- Production deployment preparation and hosted smoke testing
+
+Key Learnings:
+
+- Deployment should provide infrastructure for an existing architecture rather than force an unnecessary architectural rewrite.
+- Environment variables allow the same application code to support local and production environments.
+- Managed PostgreSQL can replace local database infrastructure without changing the application's repository or domain architecture.
+- Separate backend services require explicit communication boundaries and production service URLs.
+- A successful deployment/build does not guarantee that the complete application workflow works in production; hosted smoke testing is still required.
+- Free-tier hosting can introduce cold-start delays that may affect the first request after inactivity.
+
+Common Bugs:
+
+- Production PostgreSQL connection initially failed because a database password containing `@` was not URL-encoded in the connection URI.
+- Render Start Command configuration initially required explicit entry of `./app`.
+- Frontend API requests required replacement of local Flask URLs with the production API base URL.
+- Execution history required a Flask proxy route so the frontend could continue communicating through the public application API.
+- Production history requests exposed the possibility of cold-start timing issues between the Flask and Go services.

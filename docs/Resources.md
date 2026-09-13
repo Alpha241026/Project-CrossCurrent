@@ -129,3 +129,12 @@ Chimera Slice 5 — PostgreSQL-backed Project / Endpoint repositories
 
 - Browser metadata and favicon implementation references
 - Existing project documentation — final architecture, decisions and implementation history
+
+
+# ------------------------------ SLICE 8 ------------------------------
+
+## Deployment
+
+- Render — static site and Web Service deployment reference
+- Supabase — managed PostgreSQL deployment / connection reference
+- Existing project documentation — deployment architecture and configuration decisions

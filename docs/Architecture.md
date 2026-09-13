@@ -1245,3 +1245,208 @@ The major V1 engineering layers are now implemented:
 The remaining work is validation, deployment and final documentation rather than another architectural expansion.
 
 ______________________________________________________________
+
+
+# ------------------------------ SLICE 8 ------------------------------
+
+## Slice 8 — Deployment + Production Architecture
+
+Slice 8 moves CrossCurrent from a local development environment toward a production-hosted deployment.
+
+The application is split across independently hosted frontend and backend services, with PostgreSQL provided through Supabase.
+
+The production architecture is:
+
+Browser
+   ↓ HTTPS
+Render Static Site
+   ↓
+Frontend
+   ↓ HTTPS
+Render Web Service
+   ↓
+Python / Flask Application
+   ├──────────────→ External HTTP API
+   │
+   └──────────────→ Go Execution History Service
+                          ↓
+                   Execution Repository
+                          ↓
+                    Supabase PostgreSQL
+
+The frontend is served as a static application.
+
+Python / Flask remains the public application API and continues to coordinate Project management, Endpoint management and request execution.
+
+Go remains responsible for Execution history persistence and retrieval.
+
+Supabase provides the managed PostgreSQL database used as the persistent source of truth.
+
+_____________________________________________________________
+
+
+## Production Service Responsibilities
+
+### Frontend
+
+The frontend is deployed as a static site.
+
+Responsibilities remain:
+
+- rendering the CrossCurrent workspace
+- collecting request configuration
+- communicating with the Flask API
+- displaying execution responses
+- displaying execution history
+
+The frontend does not directly connect to PostgreSQL.
+
+The frontend also does not directly communicate with the Go history service.
+
+This preserves the application API boundary established in the previous slices.
+
+_____________________________________________________________
+
+
+## Python / Flask Production Service
+
+The Python application is deployed as a Render Web Service.
+
+Python remains responsible for:
+
+- Project management
+- Endpoint management
+- Request configuration
+- Request execution coordination
+- Outbound HTTP requests
+- communication with the Go Execution History Service
+
+The Flask application exposes the public application API consumed by the frontend.
+
+Production database connectivity is provided through the `DATABASE_URL` environment variable.
+
+Local `.env` configuration remains available for development without becoming part of the production deployment configuration.
+
+_____________________________________________________________
+
+
+## Go Production Service
+
+The Go Execution History Service is deployed as a separate Render Web Service.
+
+Go remains responsible for:
+
+- receiving completed Execution records
+- persisting Execution records
+- retrieving Execution history
+- communicating with PostgreSQL through the Execution Repository
+
+The service uses the deployment-provided `PORT` environment variable while retaining a local development fallback.
+
+Production database connectivity is provided through the `DATABASE_URL` environment variable.
+
+_____________________________________________________________
+
+
+## Database Deployment
+
+CrossCurrent uses Supabase as the managed PostgreSQL provider.
+
+The existing PostgreSQL schema remains unchanged as the application moves from local development to production.
+
+PostgreSQL remains responsible for:
+
+- Project persistence
+- Endpoint persistence
+- Execution persistence
+- identity generation
+- foreign-key relationships
+- cascading Project → Endpoint deletion
+- JSONB request and response data
+
+The production database is initialized from the shared `database/schema.sql` definition.
+
+No local development data is migrated into the production database.
+
+_____________________________________________________________
+
+
+## Production Communication Boundary
+
+The browser communicates only with the Flask application API.
+
+The Flask application communicates with the Go Execution History Service for Execution persistence and retrieval.
+
+The Go service communicates with PostgreSQL.
+
+The resulting application boundary is:
+
+Browser
+   ↓
+Flask
+   ↓
+Go
+   ↓
+PostgreSQL
+
+Outbound request execution remains:
+
+Flask
+   ↓
+External HTTP API
+   ↓
+Flask
+   ↓
+Browser
+
+This keeps database credentials and internal service communication outside the frontend.
+
+_____________________________________________________________
+
+
+## Production Configuration
+
+Environment-specific configuration is provided through deployment environment variables rather than committed configuration files.
+
+The primary production configuration values are:
+
+- `DATABASE_URL`
+- `GO_SERVICE_URL`
+- `PORT`
+
+`DATABASE_URL` provides PostgreSQL connectivity.
+
+`GO_SERVICE_URL` identifies the Go Execution History Service.
+
+`PORT` is provided by the hosting platform for web-service binding.
+
+Local development continues to use the existing `.env` configuration where required.
+
+_____________________________________________________________
+
+
+## Deployment Structure
+
+The production deployment uses:
+
+- Render Static Site for the frontend
+- Render Web Service for the Python / Flask application
+- Render Web Service for the Go Execution History Service
+- Supabase PostgreSQL for persistent storage
+
+The backend services remain logically separated while preserving the existing application architecture.
+
+Deployment changes the hosting environment rather than the domain model or responsibility boundaries.
+
+_____________________________________________________________
+
+
+## Deployment State
+
+The application has been prepared for production deployment.
+
+The remaining deployment work is operational validation of the hosted services and final production smoke testing.
+
+No additional application architecture is introduced by Slice 8.
+
+_____________________________________________________________

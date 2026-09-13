@@ -724,5 +724,189 @@ Reason:
 
 The browser-facing identity should match the final product name and provide a consistent presentation when the project is opened directly or shared externally.
 
+_____________________________________________________________________________________________________________
+
+# ------------------------------ SLICE 8 ------------------------------
+
+- **## D046 : CrossCurrent will use Render + Supabase for Version 1 deployment.**
+
+Decision:
+
+Render will host the application services and frontend.
+
+Supabase will provide the managed PostgreSQL database.
+
+The production deployment consists of:
+
+- Render Static Site
+- Render Python / Flask Web Service
+- Render Go Execution History Web Service
+- Supabase PostgreSQL
+
+Reason:
+
+This provides a simple production deployment while preserving the existing separation between frontend, Python application logic, Go execution-history functionality and PostgreSQL persistence.
+
+No architectural rewrite is required for deployment.
+
+_____________________________________________________________________________________________________________
+
+- **## D047 : The frontend will be deployed as a static site.**
+
+Decision:
+
+The Version 1 frontend will remain framework-free and will be deployed as a Render Static Site.
+
+Reason:
+
+The frontend consists of HTML, CSS and Vanilla JavaScript and does not require a dedicated application server.
+
+This keeps frontend hosting simple while preserving the existing browser → Flask API communication model.
+
+_____________________________________________________________________________________________________________
+
+- **## D048 : Python / Flask will remain the public application API.**
+
+Decision:
+
+The browser will communicate with the Python / Flask service rather than directly communicating with internal backend services.
+
+Reason:
+
+This preserves a single public application boundary and prevents database credentials and internal service configuration from being exposed to the frontend.
+
+The existing application responsibilities therefore remain unchanged during deployment.
+
+_____________________________________________________________________________________________________________
+
+- **## D049 : The Go Execution History Service will remain a separate deployed service.**
+
+Decision:
+
+Go will be deployed independently from the Python / Flask application.
+
+Python will communicate with Go for Execution persistence and history retrieval.
+
+Reason:
+
+Go already owns the Execution History subsystem.
+
+Keeping it as a separate service preserves the responsibility boundary established in Slice 6 rather than introducing a deployment-only rewrite.
+
+_____________________________________________________________________________________________________________
+
+- **## D050 : Supabase will provide the production PostgreSQL database.**
+
+Decision:
+
+The production database will use Supabase PostgreSQL.
+
+Reason:
+
+CrossCurrent already uses PostgreSQL as its persistence model.
+
+A managed PostgreSQL service provides production database infrastructure without changing the existing repository architecture.
+
+The shared `database/schema.sql` remains the definition of the production schema.
+
+_____________________________________________________________________________________________________________
+
+- **## D051 : Production secrets will be provided through environment variables.**
+
+Decision:
+
+Production database and service configuration will be supplied through deployment environment variables rather than committed files.
+
+The primary configuration values are:
+
+- `DATABASE_URL`
+- `GO_SERVICE_URL`
+- `PORT`
+
+Reason:
+
+Environment-specific configuration should remain outside the source repository.
+
+This also prevents database credentials from becoming part of the deployed frontend or source-controlled project.
+
+_____________________________________________________________________________________________________________
+
+- **## D052 : Local and production database configuration will use the same application interface.**
+
+Decision:
+
+The Python and Go database connection layers will support `DATABASE_URL` for production while retaining the existing local environment configuration.
+
+Reason:
+
+The application should not require separate database implementations for local development and production.
+
+The connection configuration changes with the environment while the repository and persistence architecture remain unchanged.
+
+_____________________________________________________________________________________________________________
+
+- **## D053 : The production database will start with a clean schema.**
+
+Decision:
+
+Local development data will not be migrated into the production database.
+
+The production PostgreSQL database will be initialized from `database/schema.sql`.
+
+Reason:
+
+CrossCurrent Version 1 does not require preservation of development test data.
+
+A clean production database provides a predictable initial state for final validation.
+
+_____________________________________________________________________________________________________________
+
+- **## D054 : Deployment will not introduce another architectural layer.**
+
+Decision:
+
+Hosting infrastructure will not change the established application responsibilities.
+
+The production responsibility boundary remains:
+
+Frontend
+   ↓
+Python / Flask
+   ↓
+Go Execution History Service
+   ↓
+PostgreSQL
+
+Python continues to perform outbound HTTP requests directly.
+
+Reason:
+
+Deployment should provide infrastructure for the existing architecture rather than become a reason to redesign it.
+
+The Version 1 architecture is considered complete before deployment.
+
+_____________________________________________________________________________________________________________
+
+- **## D055 : Version 1 deployment completion will be validated through hosted smoke testing.**
+
+Decision:
+
+Production deployment will be considered complete only after the hosted services are reachable and the core CrossCurrent workflow is validated.
+
+Validation will cover:
+
+- frontend loading
+- Flask health
+- Go health
+- PostgreSQL connectivity
+- Project persistence
+- Endpoint persistence
+- request execution
+- Execution persistence
+- Execution history retrieval
+
+Reason:
+
+A successful build or deployment status alone does not establish that the complete production workflow is operational.
 
 _____________________________________________________________________________________________________________
