@@ -4,7 +4,7 @@
 # ------------------------------ DAY 1/2 ------------------------------
 
 
-- ## D001 : Pulse Version 1 will use a fixed three-panel workspace.
+- ## D001 : Chimera Version 1 will use a fixed three-panel workspace.
 
 Sidebar
 
@@ -18,7 +18,7 @@ Response Viewer
 
 ______________________________________________________________________________________________________
 
-- ## D002 : For Version 1, Pulse has three primary domain entities:
+- ## D002 : For Version 1, Chimera has three primary domain entities:
 
 📁 Project
 
@@ -227,7 +227,7 @@ ________________________________________________________________________________
 
 # ------------------------------ DAY 6 / 7 ------------------------------
 
-- ## D013 : Request execution will be routed through the Pulse backend.
+- ## D013 : Request execution will be routed through the Chimera backend.
 
 Decision:
 
@@ -235,7 +235,7 @@ The frontend will send request details to the backend instead of contacting exte
 
 Reason:
 
-Keeps request execution behind the backend boundary and allows Pulse to later handle execution-related features such as history, logging and authentication centrally.
+Keeps request execution behind the backend boundary and allows Chimera to later handle execution-related features such as history, logging and authentication centrally.
 
 ___________________________________________________________________________________________________
 

@@ -1,4 +1,83 @@
+import ipaddress
+import os
+import socket
+from urllib.parse import urlparse
 import requests
+
+GO_SERVICE_URL = os.getenv("GO_SERVICE_URL", "http://localhost:8080")
+
+def is_safe_target_url(url):
+    try:
+        parsed = urlparse(url)
+
+        # Only allow normal HTTP(S) requests.
+        if parsed.scheme not in ("http", "https"):
+            return False
+
+        # A hostname is required.
+        hostname = parsed.hostname
+
+        if not hostname:
+            return False
+
+        hostname = hostname.lower()
+
+        # Block obvious local hostnames.
+        blocked_hostnames = {
+            "localhost",
+            "localhost.localdomain",
+            "ip6-localhost",
+            "ip6-loopback",
+        }
+
+        if hostname in blocked_hostnames or hostname.endswith(".localhost"):
+            return False
+
+        # If the hostname itself is an IP address, inspect it directly.
+        try:
+            ip = ipaddress.ip_address(hostname)
+
+            if (
+                ip.is_private
+                or ip.is_loopback
+                or ip.is_link_local
+                or ip.is_multicast
+                or ip.is_reserved
+                or ip.is_unspecified
+            ):
+                return False
+
+            return True
+
+        except ValueError:
+            # It's a hostname rather than an IP address.
+            pass
+
+        # Resolve the hostname and make sure none of its addresses
+        # point to an internal/local network.
+        addresses = socket.getaddrinfo(
+            hostname,
+            parsed.port or (443 if parsed.scheme == "https" else 80),
+            type=socket.SOCK_STREAM,
+        )
+
+        for address in addresses:
+            resolved_ip = ipaddress.ip_address(address[4][0])
+
+            if (
+                resolved_ip.is_private
+                or resolved_ip.is_loopback
+                or resolved_ip.is_link_local
+                or resolved_ip.is_multicast
+                or resolved_ip.is_reserved
+                or resolved_ip.is_unspecified
+            ):
+                return False
+
+        return True
+
+    except (ValueError, socket.gaierror, OSError):
+        return False
 
 
 #sends the completed execution record to the Go history service
@@ -6,7 +85,7 @@ def save_execution_to_go(execution):
 
     try:
         response = requests.post(
-            "http://localhost:8080/executions",
+            f"{GO_SERVICE_URL}/executions",
             json=execution,
             timeout=2
         )
@@ -25,6 +104,13 @@ def execute_request(endpoint_id, method, url, params, headers, body):
     params = params or {}
     headers = headers or {}
 
+    if not is_safe_target_url(url):
+            return {
+                "status": None,
+                "body": None,
+                "error": "Target URL is not allowed."
+            }
+
     #store the time taken by the external API request for execution history
     response = None
 
@@ -34,7 +120,9 @@ def execute_request(endpoint_id, method, url, params, headers, body):
             response = requests.get(
                 url,
                 params=params,
-                headers=headers
+                headers=headers,
+                timeout=15,
+                allow_redirects=False
             )
 
         elif method == "POST": #sending POST request with a JSON body
@@ -42,7 +130,9 @@ def execute_request(endpoint_id, method, url, params, headers, body):
                 url,
                 params=params,
                 headers=headers,
-                json=body
+                json=body,
+                timeout=15,
+                allow_redirects=False
             )
 
         elif method == "PATCH": #sending PATCH request with a JSON body
@@ -50,7 +140,9 @@ def execute_request(endpoint_id, method, url, params, headers, body):
                 url,
                 params=params,
                 headers=headers,
-                json=body
+                json=body,
+                timeout=15,
+                allow_redirects=False
             )
 
         elif method == "DELETE": #sending DELETE request with an optional JSON body
@@ -58,7 +150,9 @@ def execute_request(endpoint_id, method, url, params, headers, body):
                 url,
                 params=params,
                 headers=headers,
-                json=body
+                json=body,
+                timeout=15,
+                allow_redirects=False
             )
 
         else:

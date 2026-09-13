@@ -3,10 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
-	"chimera-go/database"
-	"chimera-go/handlers"
-	"chimera-go/repositories"
+	"crosscurrent-go/database"
+	"crosscurrent-go/handlers"
+	"crosscurrent-go/repositories"
 )
 
 func main() {
@@ -31,9 +32,21 @@ func main() {
 	http.HandleFunc("/executions", executionHandler.CreateExecution)
 	http.HandleFunc("/executions/endpoint/", executionHandler.GetExecutionsByEndpoint)
 
-	log.Println("Go execution service listening on :8080")
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
+	})
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("Go execution service listening on :" + port)
+
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal("Go execution service failed:", err)
 	}
 }

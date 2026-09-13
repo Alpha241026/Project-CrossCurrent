@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from database.connection import get_connection
 
 from repositories.project_repo import ProjectRepository
@@ -13,10 +14,15 @@ from controllers.endpoint_controller import EndpointController
 from routes.project_route import register_project_routes
 from routes.endpoint_route import register_endpoint_routes
 from routes.execute_route import register_execute_routes
+from routes.history_route import history_routes
 
 
 app = Flask(__name__)  #create Flask application instance
+CORS(app)
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 #build repository objects and inject the PostgreSQL connection factory
 project_repo = ProjectRepository(get_connection)
@@ -36,6 +42,7 @@ endpoint_controller = EndpointController(endpoint_service)
 register_project_routes(app, project_controller)
 register_endpoint_routes(app, endpoint_controller)
 register_execute_routes(app)  #register route for executing POST requests
+app.register_blueprint(history_routes)
 
 
 if __name__ == "__main__":

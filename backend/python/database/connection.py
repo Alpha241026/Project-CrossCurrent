@@ -7,6 +7,11 @@ load_dotenv()
 
 
 def get_connection():
+    database_url = os.getenv("DATABASE_URL")
+
+    if database_url:
+        return psycopg.connect(database_url)
+
     return psycopg.connect(
         host=os.getenv("DB_HOST"),
         port=os.getenv("DB_PORT"),
@@ -14,7 +19,8 @@ def get_connection():
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
     )
-    
+
+
 if __name__ == "__main__":
     with get_connection() as conn:
         print("PostgreSQL connection successful.")

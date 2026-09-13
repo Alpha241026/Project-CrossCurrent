@@ -10,18 +10,21 @@ import (
 )
 
 func GetConnection() (*sql.DB, error) {
-	// load the existing CrossCurrent database configuration
-	if err := godotenv.Load("../python/.env"); err != nil {
-		return nil, err
+	// Load local environment variables when running the project locally.
+	// In production, Render provides environment variables directly.
+	_ = godotenv.Load("../python/.env")
+
+	databaseURL := os.Getenv("DATABASE_URL")
+
+	if databaseURL != "" {
+		return sql.Open("pgx", databaseURL)
 	}
 
-	// build the PostgreSQL connection string from environment variables
 	dsn := "host=" + os.Getenv("DB_HOST") +
 		" port=" + os.Getenv("DB_PORT") +
 		" dbname=" + os.Getenv("DB_NAME") +
 		" user=" + os.Getenv("DB_USER") +
 		" password=" + os.Getenv("DB_PASSWORD")
 
-	// create the database handle without opening a connection yet
 	return sql.Open("pgx", dsn)
 }

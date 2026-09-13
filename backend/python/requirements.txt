@@ -4,3 +4,5 @@ python-dotenv
 pytest
 httpx
 psycopg[binary]
+gunicorn
+Flask-CORS

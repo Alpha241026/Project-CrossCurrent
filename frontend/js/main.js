@@ -22,6 +22,8 @@ const responseOutput = document.querySelector("#response-output");
 const historyList = document.getElementById("history-list");
 const refreshHistoryBtn = document.getElementById("refresh-history-btn");
 
+const API_BASE_URL = "http://127.0.0.1:5000";
+
 let selectedProjectID = null; //store ID of currently selected project, none project selected on initial page load
 let selectedEndpoint = null; //store the currently selected endpoint and its request configuration
 let editingEndpointID = null; //store the ID of the endpoint currently being edited
@@ -56,7 +58,7 @@ function createProject() {
         return;
     }
 
-    fetch("http://127.0.0.1:5000/projects", {
+    fetch(`${API_BASE_URL}/projects`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -78,7 +80,7 @@ function createProject() {
 
 //fetches and displays all projects
 function loadProjects(expandProjectID = null) {
-    fetch("http://127.0.0.1:5000/projects", {
+    fetch(`${API_BASE_URL}/projects`, {
         method: "GET"
     }).then((response) => {
         return response.json();
@@ -215,7 +217,7 @@ function updateProject(projectID, projectItem, currentDescription) {
             return;
         }
 
-        fetch(`http://127.0.0.1:5000/projects/${projectID}`, {
+        fetch(`${API_BASE_URL}/projects/${projectID}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json"
@@ -249,7 +251,7 @@ function deleteProject(projectID) {
         return;
     }
 
-    fetch(`http://127.0.0.1:5000/projects/${projectID}`, {
+    fetch(`${API_BASE_URL}/projects/${projectID}`, {
         method: "DELETE"
     })
     .then((response) => {
@@ -277,7 +279,7 @@ function deleteProject(projectID) {
 
 //fetches and displays all endpoints
 function loadEndpoints(projectID, projectItem) {
-    fetch(`http://127.0.0.1:5000/projects/${projectID}/endpoints`, {
+    fetch(`${API_BASE_URL}/projects/${projectID}/endpoints`, {
         method: "GET"
     }).then((response) => {
         return response.json();
@@ -566,8 +568,8 @@ function saveEndpoint() {
     const isEditing = editingEndpointID !== null;
 
     const urlPath = isEditing
-        ? `http://127.0.0.1:5000/endpoints/${editingEndpointID}`
-        : `http://127.0.0.1:5000/projects/${selectedProjectID}/endpoints`;
+        ? `${API_BASE_URL}/endpoints/${editingEndpointID}`
+        : `${API_BASE_URL}/projects/${selectedProjectID}/endpoints`;
 
     const methodType = isEditing ? "PATCH" : "POST";
 
@@ -625,7 +627,7 @@ function deleteEndpoint(projectID, endpointID) {
         return;
     }
 
-    fetch(`http://127.0.0.1:5000/endpoints/${endpointID}`, {
+    fetch(`${API_BASE_URL}/endpoints/${endpointID}`, {
         method: "DELETE"
     })
     .then((response) => {
@@ -757,7 +759,7 @@ function sendRequest() {
     setRequestLoading(true);
 
     // send the request details to the backend for execution
-    fetch("http://127.0.0.1:5000/execute", {
+    fetch(`${API_BASE_URL}/execute`, {
 
         method: "POST",
 
@@ -841,7 +843,7 @@ function loadExecutionHistory() {
         return;
     }
 
-    fetch(`http://localhost:8080/executions/endpoint/${selectedEndpoint.id}`)
+    fetch(`${API_BASE_URL}/history/endpoint/${selectedEndpoint.id}`)
 
         .then((response) => {
 
