@@ -16,11 +16,11 @@ workspace.
 > this project as **Chimera** or **Pulse**. These were previous
 > project/working names; **CrossCurrent** is the final product identity.
 
-Known main V1 limitations:
+> Known main V1 limitations:
 
-no authentication
-single shared workspace/database
-free-tier deployment may experience cold starts
+> - no authentication
+> - single shared workspace/database
+> - free-tier deployment may experience cold starts
 
 ------------------------------------------------------------------------
 
