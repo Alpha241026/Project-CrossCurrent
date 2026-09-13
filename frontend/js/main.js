@@ -92,6 +92,11 @@ function loadProjects(expandProjectID = null) {
             //attach the backend project ID to the project list item
             projectItem.dataset.projectId = project.id;
 
+            //restore the selected project visually when rebuilding the sidebar
+            if (selectedProjectID === project.id) {
+                projectItem.classList.add("selected");
+            }
+
             //display the project name separately so action buttons can sit beside it
             const projectName = document.createElement("span");
             projectName.className = "project-name";
@@ -113,11 +118,21 @@ function loadProjects(expandProjectID = null) {
             //handle project selection
             projectItem.addEventListener("click", () => {
 
-                //store the selected project's ID for later endpoint operations
                 selectedProjectID = Number(projectItem.dataset.projectId);
 
                 //a new project selection means no endpoint is currently selected
                 selectedEndpoint = null;
+
+                //reset the workspace because the previous endpoint no longer applies
+                resetResponseViewer();
+                clearHistorySelection();
+
+                //update the visual selection state
+                document.querySelectorAll("#project-list > li").forEach((item) => {
+                    item.classList.remove("selected");
+                });
+
+                projectItem.classList.add("selected");
 
                 loadEndpoints(selectedProjectID, projectItem);
                 console.log(selectedProjectID);
@@ -281,6 +296,11 @@ function loadEndpoints(projectID, projectItem) {
             //attach the backend endpoint ID to the endpoint list item
             endpointItem.dataset.endpointId = ep.id;
 
+            //restore the selected endpoint visually when rebuilding the endpoint list
+            if (selectedEndpoint && selectedEndpoint.id === ep.id) {
+                endpointItem.classList.add("selected");
+            }
+
             //create endpoint name display
             const endpointName = document.createElement("span");
             endpointName.className = "endpoint-name";
@@ -294,15 +314,25 @@ function loadEndpoints(projectID, projectItem) {
             const deleteButton = document.createElement("button");
             deleteButton.textContent = "Delete";
 
-            //handle endpoint selection
             endpointItem.addEventListener("click", (event) => {
-                event.stopPropagation();
+            event.stopPropagation();
 
-                //store the complete endpoint object for use by the request builder
-                selectedEndpoint = ep;
-                loadEndpointIntoBuilder(ep);
-                console.log(selectedEndpoint);
+            //store the complete endpoint object for use by the request builder
+            selectedEndpoint = ep;
+
+            //clear any previously selected history execution
+            clearHistorySelection();
+
+            //update the visual selection state
+            endpointList.querySelectorAll("li").forEach((item) => {
+                item.classList.remove("selected");
             });
+
+            endpointItem.classList.add("selected");
+
+            loadEndpointIntoBuilder(ep);
+            console.log(selectedEndpoint);
+        });
 
             //handle endpoint editing
             editButton.addEventListener("click", (event) => {
@@ -627,35 +657,106 @@ function deleteEndpoint(projectID, endpointID) {
 
 
 
-//sends an HTTP request from the request builder
+// updates the response status styling and text
+function setStatusState(text, state) {
+
+    statusOutput.textContent = text;
+
+    statusOutput.classList.remove(
+        "status-success",
+        "status-warning",
+        "status-error",
+        "status-loading"
+    );
+
+    if (state) {
+        statusOutput.classList.add(`status-${state}`);
+    }
+}
+
+
+// updates the response viewer while a request is being processed
+function setRequestLoading(isLoading) {
+
+    sendButton.disabled = isLoading;
+
+    sendButton.classList.toggle("is-loading", isLoading);
+
+    sendButton.textContent = isLoading ? "Sending..." : "Send";
+}
+
+
+
+// clears the response viewer when the workspace has no active execution
+function resetResponseViewer() {
+
+    setStatusState("No Endpoint", "warning");
+
+    responseOutput.textContent =
+        "Select an endpoint before sending a request";
+}
+
+
+// clears the currently selected history item
+function clearHistorySelection() {
+
+    historyList
+        .querySelectorAll(".history-item")
+        .forEach((item) => {
+            item.classList.remove("selected");
+        });
+}
+
+
+
+// sends an HTTP request from the request builder
 function sendRequest() {
 
-    //read the request inputs
+    // prevent another request while the current one is running
+    if (sendButton.disabled) {
+        return;
+    }
+
+    // require a selected endpoint before recording execution history
+    if (!selectedEndpoint) {
+        setStatusState("No Endpoint", "warning");
+        responseOutput.textContent = "Select an endpoint before sending a request";
+        return;
+    }
+
+    // read the request inputs
     const method = methodSelect.value;
     const url = urlInput.value;
     const params = collectParams();
     const headers = collectHeaders();
     const body = bodyInput.value;
 
-    //parse the request body only when one is provided
+    // prevent empty URLs
+    if (url.trim() === "") {
+        setStatusState("Invalid Request", "warning");
+        responseOutput.textContent = "URL can't be empty";
+        return;
+    }
+
+    // parse the request body only when one is provided
     let parsedBody = null;
 
     if (body.trim() !== "") {
         try {
             parsedBody = JSON.parse(body);
         } catch {
-            alert("Body must contain valid JSON!");
+            setStatusState("Invalid Request", "warning");
+            responseOutput.textContent = "Body must contain valid JSON";
             return;
         }
     }
 
-    //prevent empty URLs
-    if (url.trim() === "") {
-        alert("URL can't be empty!");
-        return;
-    }
+    // show the loading state before sending the request
+    setStatusState("Sending...", "loading");
+    responseOutput.textContent = "Waiting for response...";
+    setRequestLoading(true);
 
-    //send the request details to the backend for execution
+    // send the request details to the backend for execution
     fetch("http://127.0.0.1:5000/execute", {
 
         method: "POST",
@@ -664,7 +765,7 @@ function sendRequest() {
             "Content-Type": "application/json"
         },
 
-        //send the selected HTTP method, URL and parsed body to Chimera for execution
+        // send the selected HTTP method, URL and parsed body to CrossCurrent for execution
         body: JSON.stringify({
             endpoint_id: selectedEndpoint.id,
             method: method,
@@ -675,26 +776,59 @@ function sendRequest() {
         })
 
     })
-    .then((response) => { //read the backend response
+    .then((response) => {
+
+        // reject failed responses from the CrossCurrent backend itself
+        if (!response.ok) {
+            throw new Error(`CrossCurrent backend returned ${response.status}`);
+        }
 
         return response.json();
 
     })
-    .then((data) => { //update the status and response panels
+    .then((data) => {
 
-        statusOutput.textContent = data.status;
-        responseOutput.textContent = JSON.stringify(data.body, null, 2);
+        // restore the normal Send button after execution completes
+        setRequestLoading(false);
+
+        // handle a request that reached the target but failed to receive a valid response
+        if (data.status === null) {
+            setStatusState("Request Failed", "error");
+            responseOutput.textContent = data.error || "The request could not be completed";
+            return;
+        }
+
+        // classify the target API response by HTTP status
+        if (data.status >= 200 && data.status < 400) {
+            setStatusState(data.status, "success");
+        } else if (data.status >= 400 && data.status < 500) {
+            setStatusState(data.status, "warning");
+        } else {
+            setStatusState(data.status, "error");
+        }
+
+        // display the returned response body
+        responseOutput.textContent = JSON.stringify(
+            data.body,
+            null,
+            2
+        );
+
+        // refresh history only after the execution result has arrived
+        loadExecutionHistory();
 
     })
-    .catch((error) => { //display request errors
+    .catch((error) => {
 
-        statusOutput.textContent = "Request Failed";
+        // restore the normal Send button after a failed request
+        setRequestLoading(false);
+
+        // display the request failure in the response viewer
+        setStatusState("Request Failed", "error");
         responseOutput.textContent = error.message;
 
     });
 
-    //refresh history after a new execution
-    loadExecutionHistory();
 }
 
 
@@ -738,7 +872,18 @@ function loadExecutionHistory() {
 
                 const status = execution.status_code ?? "Failed";
 
-                const responseTime = execution.response_time !== null
+                const statusState =
+                    execution.status_code === null
+                        ? "error"
+                        : execution.status_code >= 200 && execution.status_code < 400
+                            ? "success"
+                            : execution.status_code >= 400 && execution.status_code < 500
+                                ? "warning"
+                                : "error";
+
+                historyItem.classList.add(`status-${statusState}`);
+
+                const responseTime = execution.response_time != null
                     ? `${execution.response_time} ms`
                     : "-";
 
@@ -751,6 +896,10 @@ function loadExecutionHistory() {
                 `;
 
                 historyItem.addEventListener("click", () => {
+                    clearHistorySelection();
+
+                historyItem.classList.add("selected");
+
                     showExecution(execution);
                 });
 
@@ -772,7 +921,20 @@ function loadExecutionHistory() {
 //shows the selected historical execution in the response viewer
 function showExecution(execution) {
 
-    statusOutput.textContent = execution.status_code ?? "Request Failed";
+    if (execution.status_code === null) {
+        setStatusState("Request Failed", "error");
+    } else if (execution.status_code >= 200 && execution.status_code < 400) {
+        setStatusState(execution.status_code, "success");
+    } else if (execution.status_code >= 400 && execution.status_code < 500) {
+        setStatusState(execution.status_code, "warning");
+    } else {
+        setStatusState(execution.status_code, "error");
+    }
+
+    if (execution.error_message) {
+        responseOutput.textContent = execution.error_message;
+        return;
+    }
 
     responseOutput.textContent = JSON.stringify(
         execution.response_body,
@@ -780,12 +942,6 @@ function showExecution(execution) {
         2
     );
 }
-
-
-//reloads execution history when the user requests a refresh
-refreshHistoryBtn.addEventListener("click", () => {
-    loadExecutionHistory();
-});
 
 
 loadProjects(); //populating sidebar from existing backend state when page opens

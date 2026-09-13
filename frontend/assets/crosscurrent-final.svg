@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="116" fill="#0B0E14"/>
+
+  <!-- Blue current -->
+  <path d="M80 380 C280 440 240 70 432 130"
+        fill="none"
+        stroke="#3072F5"
+        stroke-width="68"
+        stroke-linecap="round"/>
+
+  <!-- White current -->
+  <path d="M100 120 C240 60 260 460 410 390"
+        fill="none"
+        stroke="#F8F9FA"
+        stroke-width="68"
+        stroke-linecap="round"/>
+</svg>

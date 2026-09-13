@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"chimera-go/models"
+	"crosscurrent-go/models"
 )
 
 type ExecutionRepository struct {

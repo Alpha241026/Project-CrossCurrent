@@ -10,7 +10,7 @@ import (
 )
 
 func GetConnection() (*sql.DB, error) {
-	// load the existing Chimera database configuration
+	// load the existing CrossCurrent database configuration
 	if err := godotenv.Load("../python/.env"); err != nil {
 		return nil, err
 	}

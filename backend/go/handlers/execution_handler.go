@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"chimera-go/models"
-	"chimera-go/repositories"
+	"crosscurrent-go/models"
+	"crosscurrent-go/repositories"
 )
 
 type ExecutionHandler struct {

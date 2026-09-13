@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	// create the database handle using Chimera's existing configuration
+	// create the database handle using CrossCurrent's existing configuration
 	db, err := database.GetConnection()
 	if err != nil {
 		log.Fatal("database connection setup failed:", err)

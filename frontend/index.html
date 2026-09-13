@@ -3,15 +3,34 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>CrossCurrent — API Workspace</title>
+
+        <meta
+            name="description"
+            content="A lightweight API workspace for organizing, executing, and inspecting HTTP requests."
+        >
+
+        <meta property="og:title" content="CrossCurrent — API Workspace">
+        <meta
+            property="og:description"
+            content="A lightweight API workspace for organizing, executing, and inspecting HTTP requests."
+        >
+        <meta property="og:type" content="website">
+        <meta property="og:image" content="YOUR_DEPLOYED_URL/assets/crosscurrent-final.png">
+
+        <meta name="theme-color" content="#091014">
+
+        <link rel="icon" type="image/svg+xml" href="assets/crosscurrent-final.svg">
+
         <link rel="stylesheet" href="css/style.css">
-        <title>Chimera</title>
     </head>
 
     <body>
 
         <div class="sidebar">
             <div id="title">
-                <h1>Chimera</h1>
+                <h1>CrossCurrent</h1>
             </div>
             
             <h2>Projects</h2>
@@ -23,9 +42,8 @@
                 <input id="pro-input" type="text" name="ProName" placeholder="Enter project name...">
 
                 <textarea
-                    id="pro-description-input"
-                    placeholder="Project description...">
-                </textarea>
+                id="pro-description-input"
+                placeholder="Project description..."></textarea>
                 
                 <button id="pro-button" type="button">Create project</button>
             </div>
@@ -36,7 +54,7 @@
                 <div class="request-builder">
                     <div class="request-top">
                         <div class="method-section">
-                            <label>Method</label>
+                            <label for="method">Method</label>
                             <select id="method">
                                 <option>GET</option>
                                 <option>POST</option>
@@ -46,7 +64,7 @@
                         </div>
 
                         <div class="url-section">
-                            <label>URL</label>
+                            <label for="url">URL</label>
                             <input
                                 type="text"
                                 id="url"
@@ -54,7 +72,7 @@
                         </div>
 
                         <div class="endpoint-name-section">
-                            <label>Endpoint Name</label>
+                            <label for="endpoint-name">Endpoint Name</label>
                             <input
                                 type="text"
                                 id="endpoint-name"
@@ -77,11 +95,10 @@
                     </div>
 
                     <div class="endpoint-description-section">
-                        <label>Endpoint Description</label>
+                        <label for="endpoint-description">Endpoint Description</label>
                         <textarea
-                            id="endpoint-description"
-                            placeholder="Describe what this endpoint is used for...">
-                        </textarea>
+                        id="endpoint-description"
+                        placeholder="Describe what this endpoint is used for..."></textarea>
                     </div>
 
                     <div class="params-section">
@@ -101,9 +118,8 @@
                     <div class="body-section">
                         <h3>Body</h3>
                         <textarea
-                            id="request-body"
-                            placeholder='{"name":"John"}'>
-                        </textarea>
+                        id="request-body"
+                        placeholder='{"name":"John"}'></textarea>
                     </div>
                 </div>
 
@@ -115,9 +131,7 @@
 
                     <div class="json-section">
                         <h3>Response</h3>
-                        <pre id="response-output">
-                        No response yet...
-                        </pre>
+                        <pre id="response-output">No response yet...</pre>
                     </div>
                 </div>
 

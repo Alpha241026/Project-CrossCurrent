@@ -1,4 +1,4 @@
-module chimera-go
+module crosscurrent-go
 
 go 1.25.5
 

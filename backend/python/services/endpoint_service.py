@@ -22,7 +22,7 @@ class EndpointService:
         if url.strip() == "":
             raise ValueError("URL cannot be empty")
 
-        #allow only HTTP methods currently supported by Chimera
+        #allow only HTTP methods currently supported by CrossCurrent
         if method not in ["GET", "POST", "PATCH", "DELETE"]:
             raise ValueError("Unsupported HTTP method")
 
@@ -80,7 +80,7 @@ class EndpointService:
         if url.strip() == "":
             raise ValueError("URL cannot be empty")
 
-        #allow only HTTP methods currently supported by Chimera
+        #allow only HTTP methods currently supported by CrossCurrent
         if method not in ["GET", "POST", "PATCH", "DELETE"]:
             raise ValueError("Unsupported HTTP method")
 
